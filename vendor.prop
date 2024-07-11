@@ -231,7 +231,7 @@ telephony.lteOnCdmaDevice=1
 ro.vendor.mtk.sensor.support=yes
 
 # Surfaceflinger
-debug.sf.auto_latch_unsignaled=0
+debug.sf.auto_latch_unsignaled=1
 debug.sf.disable_backpressure=1
 debug.sf.disable_client_composition_cache=1
 debug.sf.defer_refresh_rate_when_off=1
