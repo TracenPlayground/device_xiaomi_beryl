@@ -62,5 +62,22 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
 
     private static void onBootCompleted(Context context) {
+
+    }
+    private void startServices(Context context) {
+        if (DEBUG) Log.i(TAG, "Starting services...");
+
+        // Start Color Mode Service
+        context.startServiceAsUser(new Intent(context, ColorModeService.class), UserHandle.CURRENT);
+
+        // Start Thermal Management Services
+        ThermalUtils.getInstance(context).startService();
+        context.startServiceAsUser(new Intent(context, ThermalTileService.class), UserHandle.CURRENT);
+
+        // Start Touch Sampling Tile Service
+        context.startServiceAsUser(new Intent(context, TouchSamplingTileService.class), UserHandle.CURRENT);
+
+        // Start Touch Sampling Service
+        context.startServiceAsUser(new Intent(context, TouchSamplingService.class), UserHandle.CURRENT);
     }
 }
