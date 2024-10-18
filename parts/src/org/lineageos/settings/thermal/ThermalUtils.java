@@ -38,11 +38,11 @@ public final class ThermalUtils {
     protected static final int STATE_STREAMING = 6;
 
     private static final String THERMAL_STATE_DEFAULT = "0";
-    private static final String THERMAL_STATE_BENCHMARK = "10";
+    private static final String THERMAL_STATE_BENCHMARK = "6";
     private static final String THERMAL_STATE_BROWSER = "11";
-    private static final String THERMAL_STATE_CAMERA = "12";
-    private static final String THERMAL_STATE_DIALER = "8";
-    private static final String THERMAL_STATE_GAMING = "9";
+    private static final String THERMAL_STATE_CAMERA = "15";
+    private static final String THERMAL_STATE_DIALER = "1";
+    private static final String THERMAL_STATE_GAMING = "19";
     private static final String THERMAL_STATE_STREAMING = "14";
 
     private static final String THERMAL_BENCHMARK = "thermal.benchmark=";
