@@ -24,6 +24,8 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.ACCESS_SURFACE_FLINGER" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
 
     <protected-broadcast android:name="com.android.systemui.doze.pulse" />
 
@@ -54,7 +56,7 @@
                  android:permission="XiaomiDozeService">
         </service>
 
-        <activity
+       <!--  <activity
             android:name=".thermal.ThermalActivity"
             android:label="@string/thermal_title">
             <intent-filter>
@@ -71,6 +73,19 @@
         <service
             android:name=".thermal.ThermalService"
             android:permission="ThermalService">
+        </service>-->
+
+        <!-- Thermal Profiles tile service -->
+        
+        <service
+            android:name=".thermal.ThermalTileService"
+            android:label="@string/thermal_tile_label"
+            android:icon="@drawable/ic_thermal_tile"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
         </service>
 
         <activity
