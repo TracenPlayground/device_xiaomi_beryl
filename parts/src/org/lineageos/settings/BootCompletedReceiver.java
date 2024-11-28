@@ -35,16 +35,32 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-        if (DEBUG)
-            Log.d(TAG, "Received boot completed intent");
-        DozeUtils.onBootCompleted(context);
-        ThermalUtils.startService(context);
-        RefreshUtils.startService(context);
+        if (DEBUG) Log.i(TAG, "Received intent: " + intent.getAction());
+        switch (intent.getAction()) {
+            case Intent.ACTION_LOCKED_BOOT_COMPLETED:
+                onLockedBootCompleted(context);
+                break;
+            case Intent.ACTION_BOOT_COMPLETED:
+                onBootCompleted(context);
+                break;
+        }
+    }
 
-        //thermal tile service
-        Intent thermalServiceIntent = new Intent(context, ThermalTileService.class);
-        context.startServiceAsUser(thermalServiceIntent, UserHandle.CURRENT);
+    private static void onLockedBootCompleted(Context context) {
+            // Display
+            context.startServiceAsUser(new Intent(context, ColorModeService.class), UserHandle.CURRENT);
+            DozeUtils.onBootCompleted(context);
+            ThermalUtils.startService(context);
+            RefreshUtils.startService(context);
+            overrideHdrTypes(context);
+
+
+            // Thermal tile service
+            Intent thermalServiceIntent = new Intent(context, ThermalTileService.class);
+            context.startServiceAsUser(thermalServiceIntent, UserHandle.CURRENT);
     }
 
 
+    private static void onBootCompleted(Context context) {
+    }
 }
