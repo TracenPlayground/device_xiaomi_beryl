@@ -29,6 +29,10 @@ AB_OTA_PARTITIONS := \
     vbmeta \
     vbmeta_system \
     vbmeta_vendor
+    
+# Inherit common MediaTek IMS
+$(call inherit-product, vendor/mediatek/ims/ims.mk)
+
 
 PRODUCT_PACKAGES += \
     create_pl_dev \
@@ -144,27 +148,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.fingerprint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.fingerprint.xml
 
-# IMS
-PRODUCT_BOOT_JARS += \
-    mediatek-common \
-    mediatek-ims-base \
-    mediatek-ims-common \
-    mediatek-framework \
-    mediatek-telecom-common \
-    mediatek-telephony-base \
-    mediatek-telephony-common \
-    mediatek-ims-extension-plugin
 
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/permissions/privapp-permissions-com.mediatek.ims.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-com.mediatek.ims.xml \
-    frameworks/native/data/etc/android.software.ipsec_tunnels.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.ipsec_tunnels.xml \
-    frameworks/native/data/etc/android.software.ipsec_tunnel_migration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.ipsec_tunnel_migration.xml \
-    frameworks/native/data/etc/android.hardware.telephony.gsm.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.telephony.gsm.xml \
-    frameworks/native/data/etc/android.hardware.telephony.cdma.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.telephony.cdma.xml \
-    frameworks/native/data/etc/android.hardware.telephony.ims.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.telephony.ims.xml \
-    frameworks/native/data/etc/android.software.sip.voip.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.sip.voip.xml
 
-# Gatekeeper
+# Init
+
 PRODUCT_PACKAGES += \
     android.hardware.gatekeeper@1.0-impl:64 \
     android.hardware.gatekeeper@1.0-service
@@ -229,6 +216,13 @@ PRODUCT_COPY_FILES += \
 
 # Reduce system server verbosity.
 PRODUCT_SYSTEM_SERVER_DEBUG_INFO := false
+
+# Radio
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.software.ipsec_tunnels.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.ipsec_tunnels.xml \
+    frameworks/native/data/etc/android.software.ipsec_tunnel_migration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.ipsec_tunnel_migration.xml \
+    frameworks/native/data/etc/android.hardware.telephony.gsm.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.telephony.gsm.xml \
+    frameworks/native/data/etc/android.software.sip.voip.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.sip.voip.xml
 
 # Sensors
 PRODUCT_PACKAGES += \
@@ -386,3 +380,6 @@ $(call inherit-product, vendor/xiaomi/beryl/beryl-vendor.mk)
 
 TARGET_BOARD_PLATFORM := mt6855
 PRODUCT_USES_QCOM_HARDWARE := false
+PRODUCT_PACKAGES += \
+    libssl-v32 \
+    libcrypto-v32

@@ -1,0 +1,28 @@
+cc_library_shared {
+    name: "libssl-v32",          // Module name Soong will see
+    vendor: true,                // Install into vendor
+    stl: "none",
+    srcs: ["shim_ssl_v32.c"],
+    shared_libs: ["libssl"],     // Pull in the real SSL
+    // Force DT_NEEDED and set the SONAME to match the old binary’s expectation
+    ldflags: [
+        "-Wl,--no-as-needed",
+        "-Wl,-soname,libssl-v32.so",
+    ],
+    // Install path/filename: stem controls the .so file name on device
+    stem: "libssl-v32",
+}
+
+cc_library_shared {
+    name: "libcrypto-v32",
+    vendor: true,
+    stl: "none",
+    srcs: ["shim_crypto_v32.c"],
+    // Use whichever you actually have: libcrypto-v33 or libcrypto
+    shared_libs: ["libcrypto-v33"],
+    ldflags: [
+        "-Wl,--no-as-needed",
+        "-Wl,-soname,libcrypto-v32.so",
+    ],
+    stem: "libcrypto-v32",
+}
