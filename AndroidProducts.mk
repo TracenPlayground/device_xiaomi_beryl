@@ -5,4 +5,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/lineage_beryl.mk
+    $(LOCAL_DIR)/alpha_beryl.mk
