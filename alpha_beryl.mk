@@ -32,7 +32,7 @@ ALPHA_VERSION_APPEND_TIME_OF_DAY := false
 # 1 - vanilla (default)
 # 2 - microg
 # 3 - gapps
-TARGET_BUILD_PACKAGE := 1
+TARGET_BUILD_PACKAGE := 3
 
 # (valid only for GAPPS builds)
 TARGET_INCLUDE_GOOGLE_COMMS := true

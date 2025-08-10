@@ -21,9 +21,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.os.UserHandle;
 
-
-import org.lineageos.settings.display.ColorModeService;
 import org.lineageos.settings.doze.DozeUtils;
 import org.lineageos.settings.thermal.ThermalUtils;
 import org.lineageos.settings.thermal.ThermalTileService;
@@ -48,11 +47,9 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
     private static void onLockedBootCompleted(Context context) {
             // Display
-            context.startServiceAsUser(new Intent(context, ColorModeService.class), UserHandle.CURRENT);
             DozeUtils.onBootCompleted(context);
-            ThermalUtils.startService(context);
+            ThermalUtils.getInstance(context).startService();
             RefreshUtils.startService(context);
-            overrideHdrTypes(context);
 
 
             // Thermal tile service
@@ -63,21 +60,5 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
     private static void onBootCompleted(Context context) {
 
-    }
-    private void startServices(Context context) {
-        if (DEBUG) Log.i(TAG, "Starting services...");
-
-        // Start Color Mode Service
-        context.startServiceAsUser(new Intent(context, ColorModeService.class), UserHandle.CURRENT);
-
-        // Start Thermal Management Services
-        ThermalUtils.getInstance(context).startService();
-        context.startServiceAsUser(new Intent(context, ThermalTileService.class), UserHandle.CURRENT);
-
-        // Start Touch Sampling Tile Service
-        context.startServiceAsUser(new Intent(context, TouchSamplingTileService.class), UserHandle.CURRENT);
-
-        // Start Touch Sampling Service
-        context.startServiceAsUser(new Intent(context, TouchSamplingService.class), UserHandle.CURRENT);
     }
 }
