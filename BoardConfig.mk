@@ -39,6 +39,7 @@ TARGET_NO_BOOTLOADER := true
 BOARD_VENDOR := xiaomi
 BOARD_HAS_MTK_HARDWARE := true
 TARGET_BOARD_PLATFORM := mt6855
+PRODUCT_USES_QCOM_HARDWARE := false
 
 # Boot image
 BOARD_BOOT_HEADER_VERSION := 4
@@ -115,7 +116,7 @@ BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4
 BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := erofs
 BOARD_VENDOR_DLKMIMAGE_FILE_SYSTEM_TYPE := erofs
 
--include vendor/alpha/config/BoardConfigReservedSize.mk
+-include vendor/yaap/config/BoardConfigReservedSize.mk
 
 TARGET_COPY_OUT_SYSTEM_EXT := system_ext
 TARGET_COPY_OUT_PRODUCT := product
@@ -173,7 +174,7 @@ DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := \
     $(DEVICE_PATH)/configs/vintf/framework_compatibility_matrix.xml \
     hardware/mediatek/vintf/mediatek_framework_compatibility_matrix.xml \
     hardware/xiaomi/vintf/xiaomi_framework_compatibility_matrix.xml \
-    vendor/alpha/config/device_framework_matrix.xml
+    vendor/yaap/config/device_framework_matrix.xml
 
 # VNDK
 BOARD_VNDK_VERSION := current
@@ -201,3 +202,8 @@ WIFI_HIDL_FEATURE_DUAL_INTERFACE := true
 
 # Inherit the proprietary files
 include vendor/xiaomi/beryl/BoardConfigVendor.mk
+
+
+# Preload shim whenever libsink-mtk.so loads
+TARGET_LD_SHIM_LIBS += \
+    vendor/lib64/libsink-mtk.so|libaudioclient_shim.so

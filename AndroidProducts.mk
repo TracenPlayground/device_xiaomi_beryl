@@ -5,4 +5,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/alpha_beryl.mk
+    $(LOCAL_DIR)/yaap_beryl.mk

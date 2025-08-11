@@ -87,6 +87,8 @@ PRODUCT_PACKAGES += \
     MtkInCallService \
     XiaomiDolby
 
+PRODUCT_PACKAGES += libaudioclient_shim
+
 # Audio Configuration
 PRODUCT_COPY_FILES += \
     $(call find-copy-subdir-files,*,$(LOCAL_PATH)/configs/audio/,$(TARGET_COPY_OUT_VENDOR)/etc)
@@ -381,3 +383,6 @@ PRODUCT_PACKAGES += \
 
 # Inherit the proprietary files
 $(call inherit-product, vendor/xiaomi/beryl/beryl-vendor.mk)
+
+TARGET_BOARD_PLATFORM := mt6855
+PRODUCT_USES_QCOM_HARDWARE := false
