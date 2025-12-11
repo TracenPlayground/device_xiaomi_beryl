@@ -63,7 +63,7 @@ blob_fixups: blob_fixups_user_type = {
     ('vendor/lib64/libpqxmlparser.so',
      'vendor/lib64/librt_extamp_intf.so',
      'vendor/lib64/libsilkybrightnesscore.so'): blob_fixup()
-        .replace_needed('libtinyxml2.so', 'libtinyxml2-v36.so'),
+        .replace_needed('libtinyxml2.so', 'libtinyxml2-v34.so'),
     (
         "vendor/lib/libwvhidl.so",
         "vendor/lib/mediadrm/libwvdrmengine.so",
@@ -173,7 +173,7 @@ blob_fixups: blob_fixups_user_type = {
          'vendor/lib64/mt6855/libmtkcam_grallocutils.so': blob_fixup()
         .replace_needed('android.hardware.graphics.common-V5-ndk.so', 'android.hardware.graphics.common-V7-ndk.so'),
      'vendor/lib64/hw/audio.primary.mediatek.so': blob_fixup()
-        .replace_needed('libtinyxml2.so', 'libtinyxml2-v36.so')
+        .replace_needed('libtinyxml2.so', 'libtinyxml2-v34.so')
         .replace_needed('android.media.audio.common.types-V3-ndk.sp', 'android.media.audio.common.types-V4-ndk.so')
         .replace_needed('android.hardware.bluetooth.audio-V4-ndk.so', 'android.hardware.bluetooth.audio-V5-ndk.so')
         .replace_needed( 'android.hardware.audio.effect-V2-ndk.so', 'android.hardware.audio.effect-V3-ndk.so'),
@@ -182,11 +182,11 @@ blob_fixups: blob_fixups_user_type = {
     'vendor/lib64/hw/mt6855/vendor.mediatek.hardware.pq_aidl-impl.so': blob_fixup()
         .replace_needed("android.hardware.graphics.common-V6-ndk.so", "android.hardware.graphics.common-V7-ndk.so")
         .replace_needed('android.hardware.sensors-V2-ndk.so', 'android.hardware.sensors-V3-ndk.so')
-        .replace_needed('libtinyxml2.so', 'libtinyxml2-v36.so'),
+        .replace_needed('libtinyxml2.so', 'libtinyxml2-v34.so'),
     'vendor/bin/hw/android.hardware.audio.service-aidl.mediatek': blob_fixup()
         .replace_needed('libaudio_aidl_conversion_common_ndk.so', 'libaudio_aidl_conversion_common_ndk_prebuilt.so'),
     'vendor/lib64/hw/android.hardware.audio.effect.aidl-impl-mediatek.so': blob_fixup()
-        .replace_needed('libtinyxml2.so', 'libtinyxml2-v36.so'),
+        .replace_needed('libtinyxml2.so', 'libtinyxml2-v34.so'),
     'vendor/lib64/hw/mt6855/libpvr_mapper_utils.so': blob_fixup()
         .clear_symbol_version('AHardwareBuffer_describe')
         .clear_symbol_version('AHardwareBuffer_getNativeHandle')
