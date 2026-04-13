@@ -360,3 +360,6 @@ zygote.critical_window.minute=10
 
 # FUSE passthrough
 persist.sys.fuse.passthrough.enable=true
+
+# UVC
+ro.usb.uvc.enabled=true
