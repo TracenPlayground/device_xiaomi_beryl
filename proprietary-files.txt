@@ -2610,7 +2610,7 @@ vendor/lib64/vendor.mediatek.hardware.mms-V1-ndk.so
 # MTD
 vendor/bin/mtd_mitee
 vendor/etc/init/vendor.xiaomi.hardware.aidl.mtdservice-miteeservice.rc
-vendor/lib64/libmt_mitee.so
+vendor/lib64/libmt_mitee.so;DISABLE_DEPS
 vendor/lib64/vendor.xiaomi.hardware.aidl.mtdservice-V1-ndk.so
 
 # Neural Networks
