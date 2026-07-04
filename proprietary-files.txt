@@ -2401,7 +2401,7 @@ vendor/lib64/hw/vendor.mediatek.hardware.gnss-impl.so
 vendor/lib64/hw/vendor.mediatek.hardware.gnss.batching-impl.so
 vendor/lib64/libssl.so:vendor/lib64/libssl-v36.so;FIX_SONAME
 vendor/lib64/mt6855/libDR.so;SYMLINK=vendor/lib64/libDR.so
-vendor/lib64/mt6855/libmnl.so;SYMLINK=vendor/lib64/libmnl.so
+vendor/lib64/mt6855/libmnl.so:vendor/lib64/mt6855/libmnl_mtk.so;FIX_SONAME;SYMLINK=vendor/lib64/libmnl_mtk.so
 vendor/lib64/vendor.mediatek.hardware.gnss-V3-ndk.so
 vendor/lib64/vendor.mediatek.hardware.gnss.batching-V1-ndk.so
 

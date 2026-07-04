@@ -140,7 +140,7 @@ blob_fixups: blob_fixups_user_type = {
     'vendor/bin/mtk_agpsd': blob_fixup()
     .replace_needed('libcrypto.so', 'libcrypto-v33.so')
     .add_needed('libssl.so'),
-    'vendor/lib64/mt6855/libmnl.so': blob_fixup()
+    'vendor/lib64/mt6855/libmnl_mtk.so': blob_fixup()
     .add_needed('libcutils.so'),
 #    'system_ext/priv-app/ImsService/ImsService.apk': blob_fixup()
 #    .apktool_patch('blob-patches/ImsService.patch', '-r'),
@@ -207,6 +207,8 @@ blob_fixups: blob_fixups_user_type = {
         'vendor/lib64/libcodec2_mtk_vdec.so',
      ): blob_fixup()
         .replace_needed('libformatter.so', 'libformatter_mtk.so'),
+    'vendor/bin/mnld': blob_fixup()
+        .replace_needed('libmnl.so', 'libmnl_mtk.so'),
 }  # fmt: skip
 
 module = ExtractUtilsModule(
