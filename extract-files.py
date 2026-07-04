@@ -202,6 +202,11 @@ blob_fixups: blob_fixups_user_type = {
         .replace_needed('libssl.so', 'libssl-v36.so'),
     'vendor/lib64/android.hardware.audio.core-impl-mediatek.so': blob_fixup()
         .add_needed('libaudioutils-v36.so'),
+     (
+        'vendor/lib64/libcodec2_mtk_venc.so',
+        'vendor/lib64/libcodec2_mtk_vdec.so',
+     ): blob_fixup()
+        .replace_needed('libformatter.so', 'libformatter_mtk.so'),
 }  # fmt: skip
 
 module = ExtractUtilsModule(
