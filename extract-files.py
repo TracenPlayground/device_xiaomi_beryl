@@ -77,7 +77,11 @@ blob_fixups: blob_fixups_user_type = {
         "vendor/lib64/mt6855/libaalservice.so",
     ): blob_fixup()
     .patchelf_version(patchelf_version)
-    .replace_needed("libsensorndkbridge.so", "android.hardware.sensors@1.0-convert-shared.so"),
+    .replace_needed("libsensorndkbridge.so", "android.hardware.sensors@1.0-convert-shared.so")
+    .replace_needed('libmnl.so', 'libmnl_mtk.so'),
+    'vendor/bin/mnld': blob_fixup()
+        .replace_needed('libsensorndkbridge.so', 'android.hardware.sensors@1.0-convert-shared.so')
+        .replace_needed('libmnl.so', 'libmnl_mtk.so'),
     (
         "vendor/lib64/libteei_daemon_vfs.so",
         "vendor/lib64/mt6855/lib3a.ae.stSat.so",
@@ -135,13 +139,12 @@ blob_fixups: blob_fixups_user_type = {
         .clear_symbol_version('ANativeWindow_setUsage'),
     ('vendor/lib64/libnvram.so', 'vendor/lib64/libsysenv.so'): blob_fixup()
         .add_needed('libbase_shim.so'),
-    'vendor/lib64/mt6855/libmnl.so': blob_fixup()
+    'vendor/lib64/mt6855/libmnl_mtk.so': blob_fixup()
+            .fix_soname()
     .add_needed('libcutils.so'),
     'vendor/bin/mtk_agpsd': blob_fixup()
     .replace_needed('libcrypto.so', 'libcrypto-v33.so')
     .add_needed('libssl.so'),
-    'vendor/lib64/mt6855/libmnl.so': blob_fixup()
-    .add_needed('libcutils.so'),
 #    'system_ext/priv-app/ImsService/ImsService.apk': blob_fixup()
 #    .apktool_patch('blob-patches/ImsService.patch', '-r'),
     'system_ext/lib64/libimsma.so': blob_fixup()
