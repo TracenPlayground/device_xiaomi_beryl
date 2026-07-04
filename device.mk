@@ -385,7 +385,8 @@ PRODUCT_SOONG_NAMESPACES += \
     hardware/mediatek/wlan/wifi_hal \
     hardware/xiaomi \
     hardware/google/interfaces \
-    hardware/google/pixel
+    hardware/google/pixel/pixelstats \
+    hardware/google/pixel/power-libperfmgr
 
 # Shipping API Level
 PRODUCT_SHIPPING_API_LEVEL := 36
