@@ -66,3 +66,7 @@ ro.property_service.async_persist_writes=true
 
 # Blur
 ro.surface_flinger.supports_background_blur=1
+
+# Axion
+persist.sys.perf.scroll_opt = true
+persist.sys.perf.scroll_opt.heavy_app = 1
