@@ -111,3 +111,7 @@ genfscon sysfs /devices/virtual/power_supply/mtk-gauge/wakeup u:object_r:sysfs_w
 
 # USB
 genfscon sysfs /devices/platform/rt-pd-manager/typec/port0                         u:object_r:sysfs_usb_nonplat:s0
+
+# Vibration
+genfscon sysfs /devices/platform/soc/soc:regulator-vibrator/leds/vibrator u:object_r:sysfs_leds:s0
+
