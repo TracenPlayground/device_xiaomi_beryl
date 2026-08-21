@@ -11,4 +11,7 @@ set_prop(mtk_hal_camera, vendor_camera_persist_prop)
 get_prop(mtk_hal_camera, vendor_camera_prop)
 set_prop(mtk_hal_camera, vendor_camera_prop)
 
+get_prop(mtk_hal_camera, vendor_camera_debug_prop)
+set_prop(mtk_hal_camera, vendor_camera_debug_prop)
+
 r_dir_file(mtk_hal_camera, sysfs_therm)

@@ -1,0 +1,2 @@
+get_prop(hal_ir_default, vendor_ir_prop)
+allow hal_ir_default consumerir_device:chr_file rw_file_perms;

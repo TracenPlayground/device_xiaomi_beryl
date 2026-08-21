@@ -7,6 +7,8 @@ persist.vendor.accelerate.charge u:object_r:vendor_batterysecret_prop:s0
 # Camera
 persist.vendor.camera. u:object_r:vendor_camera_persist_prop:s0
 vendor.camera. u:object_r:vendor_camera_prop:s0
+persist.vendor.debug.isphidl.guard u:object_r:vendor_camera_debug_prop:s0
+vendor.camprovider.enable_hidden   u:object_r:vendor_camera_debug_prop:s0
 
 # Fingerprint
 persist.vendor.goodix. u:object_r:vendor_fingerprint_prop:s0
@@ -23,6 +25,7 @@ ro.vendor.oem.meid                       u:object_r:vendor_mtk_radio_prop:s0
 
 # Sensors
 ro.vendor.sensors.xiaomi.		 u:object_r:vendor_sensors_prop:s0
+ro.vendor.lirc.dev    u:object_r:vendor_ir_prop:s0
 
 # Thermal
 vendor.sys.thermal.data.path             u:object_r:vendor_thermal_prop:s0
