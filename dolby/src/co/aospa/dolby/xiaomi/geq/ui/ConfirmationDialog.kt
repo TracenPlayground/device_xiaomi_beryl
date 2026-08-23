@@ -1,58 +1,42 @@
 /*
- * Copyright (C) 2024 Paranoid Android
+ * Copyright (C) 2023-2024 Paranoid Android
+ * Copyright (C) 2024-2026 Halcyon Project
  *
  * SPDX-License-Identifier: Apache-2.0
  */
 
 package co.aospa.dolby.xiaomi.geq.ui
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun ConfirmationDialog(
-    text: String,
+    title: String,
+    message: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    var showDialog by remember { mutableStateOf(true) }
-    if (!showDialog) {
-        onDismiss()
-        return
-    }
-
     AlertDialog(
-        onDismissRequest = { showDialog = false },
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(28.dp),
+        title = { Text(title) },
+        text = { Text(message) },
         confirmButton = {
-            TextButton(
-                onClick = {
-                    showDialog = false
-                    onConfirm()
-                }
-            ) {
-                Text(
-                    stringResource(id = android.R.string.ok)
-                )
+            Button(onClick = onConfirm) {
+                Text(stringResource(android.R.string.ok))
             }
         },
         dismissButton = {
-            TextButton(
-                onClick = { showDialog = false }
-            ) {
-                Text(
-                    stringResource(id = android.R.string.cancel)
-                )
+            OutlinedButton(onClick = onDismiss) {
+                Text(stringResource(android.R.string.cancel))
             }
-        },
-        text = {
-            Text(text)
         }
     )
 }

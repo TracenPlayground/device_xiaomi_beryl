@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2024 Paranoid Android
+ * Copyright (C) 2023-2024 Paranoid Android
+ * Copyright (C) 2024-2026 Halcyon Project
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -7,177 +8,122 @@
 package co.aospa.dolby.xiaomi.geq.data
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.util.Log
-import co.aospa.dolby.xiaomi.DolbyConstants.Companion.PREF_PRESET
-import co.aospa.dolby.xiaomi.DolbyConstants.Companion.dlog
-import co.aospa.dolby.xiaomi.DolbyController
+import androidx.preference.PreferenceManager
 import co.aospa.dolby.xiaomi.R
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.withContext
 
-class EqualizerRepository(
-    private val context: Context
-) {
+class EqualizerRepository private constructor(private val context: Context) {
 
-    private val dolbyController by lazy { DolbyController.getInstance(context) }
+    private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-    // Preset is saved as a string of comma separated gains in SharedPreferences
-    // and is unique to each profile ID
-    private val profile = dolbyController.profile
-    private val profileSharedPrefs by lazy {
-        context.getSharedPreferences(
-            "profile_$profile",
-            Context.MODE_PRIVATE
-        )
-    }
+    private val presetNames = context.resources.getStringArray(R.array.dolby_preset_entries)
+    private val defaultPresets = listOf(
+        Preset(0, presetNames[0], (0..9).map { BandGain(it, 0) }, isReadOnly = true),
+        Preset(1, presetNames[1], listOf(BandGain(0, 4), BandGain(1, 3), BandGain(2, 2), BandGain(3, 0), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
+        Preset(2, presetNames[2], listOf(BandGain(0, 3), BandGain(1, 2), BandGain(2, 1), BandGain(3, 2), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
+        Preset(3, presetNames[3], listOf(BandGain(0, -1), BandGain(1, 1), BandGain(2, 3), BandGain(3, 4), BandGain(4, 3), BandGain(5, 0), BandGain(6, -1), BandGain(7, -1), BandGain(8, -1), BandGain(9, -1)), isReadOnly = true),
+        Preset(4, presetNames[4], listOf(BandGain(0, 4), BandGain(1, 3), BandGain(2, 2), BandGain(3, 2), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 2), BandGain(8, 3), BandGain(9, 4)), isReadOnly = true),
+        Preset(5, presetNames[5], listOf(BandGain(0, 4), BandGain(1, 3), BandGain(2, 0), BandGain(3, 2), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
+        Preset(6, presetNames[6], listOf(BandGain(0, 2), BandGain(1, 1), BandGain(2, 2), BandGain(3, -1), BandGain(4, 0), BandGain(5, 1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
+        Preset(7, presetNames[7], listOf(BandGain(0, 3), BandGain(1, 2), BandGain(2, 0), BandGain(3, 0), BandGain(4, -1), BandGain(5, 2), BandGain(6, 1), BandGain(7, 1), BandGain(8, 3), BandGain(9, 4)), isReadOnly = true),
+        Preset(8, presetNames[8], listOf(BandGain(0, 2), BandGain(1, 1), BandGain(2, 0), BandGain(3, 2), BandGain(4, 2), BandGain(5, 1), BandGain(6, 0), BandGain(7, 2), BandGain(8, 3), BandGain(9, 3)), isReadOnly = true),
+        Preset(9, presetNames[9], listOf(BandGain(0, 3), BandGain(1, 5), BandGain(2, 2), BandGain(3, 0), BandGain(4, 1), BandGain(5, 2), BandGain(6, 3), BandGain(7, 2), BandGain(8, 1), BandGain(9, 0)), isReadOnly = true),
+        Preset(10, presetNames[10], listOf(BandGain(0, 3), BandGain(1, 2), BandGain(2, 1), BandGain(3, 0), BandGain(4, -1), BandGain(5, -1), BandGain(6, 1), BandGain(7, 2), BandGain(8, 3), BandGain(9, 4)), isReadOnly = true)
+    )
 
-    private val presetsSharedPrefs by lazy {
-        context.getSharedPreferences(
-            "presets",
-            Context.MODE_PRIVATE
-        )
-    }
+    fun getAllPresets(): List<Preset> {
+        val presets = mutableListOf<Preset>()
+        presets.addAll(defaultPresets)
 
-    val builtInPresets: List<Preset> by lazy {
-        val names = context.resources.getStringArray(
-            R.array.dolby_preset_entries
-        )
-        val presets = context.resources.getStringArray(
-            R.array.dolby_preset_values
-        )
-        List(names.size) { index ->
-            Preset(
-                name = names[index],
-                bandGains = deserializeGains(presets[index]),
-            )
+        val customCount = sharedPreferences.getInt(KEY_CUSTOM_PRESET_COUNT, 0)
+        for (i in 0 until customCount) {
+            val id = CUSTOM_PRESET_BASE_ID + i
+            val name = sharedPreferences.getString("${KEY_CUSTOM_PRESET_NAME}_$id", "Preset ${i + 1}") ?: "Preset ${i + 1}"
+            val gains = getPresetGains(id)
+            presets.add(Preset(id, name, gains, isReadOnly = false))
         }
+        return presets
     }
 
-    val defaultPreset by lazy { builtInPresets[0] } // Flat
-
-    // User defined presets are stored in a SharedPreferences as
-    // key - preset name
-    // value - comma separated string of gains
-    val userPresets: Flow<List<Preset>> = callbackFlow {
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
-            dlog(TAG, "presetsSharedPrefs changed")
-            trySend(
-                presetsSharedPrefs.all.map { (key, value) ->
-                    Preset(
-                        name = key,
-                        bandGains = deserializeGains(value.toString()),
-                        isUserDefined = true
-                    )
-                }
-            )
-        }
-
-        presetsSharedPrefs.registerOnSharedPreferenceChangeListener(listener)
-        dlog(TAG, "presetsSharedPrefs registered listener")
-        // trigger an initial emission
-        listener.onSharedPreferenceChanged(presetsSharedPrefs, null)
-
-        awaitClose {
-            presetsSharedPrefs.unregisterOnSharedPreferenceChangeListener(listener)
-            dlog(TAG, "presetsSharedPrefs unregistered listener")
-        }
+    fun getPreset(presetId: Int): Preset? {
+        return getAllPresets().firstOrNull { it.id == presetId }
     }
 
-    suspend fun getBandGains(): List<BandGain> = withContext(Dispatchers.IO) {
-        val gains = profileSharedPrefs.getString(PREF_PRESET, dolbyController.getPreset())
-        return@withContext if (gains.isNullOrEmpty()) {
-            defaultPreset.bandGains
-        } else {
-            deserializeGains(gains)
-        }.also {
-            dlog(TAG, "getBandGains: $it")
+    fun getPresetGains(presetId: Int): List<BandGain> {
+        val defaultPreset = defaultPresets.firstOrNull { it.id == presetId }
+        val gains = mutableListOf<BandGain>()
+
+        for (band in 0..9) {
+            val key = "${KEY_PRESET_GAIN}_${presetId}_$band"
+            val defaultGain = defaultPreset?.bandGains?.getOrNull(band)?.gain ?: 0
+            val gain = sharedPreferences.getInt(key, defaultGain)
+            gains.add(BandGain(band, gain))
         }
+        return gains
     }
 
-    suspend fun setBandGains(bandGains: List<BandGain>) = withContext(Dispatchers.IO) {
-        dlog(TAG, "setBandGains($bandGains)")
-        val gains = serializeGains(bandGains)
-        dolbyController.setPreset(gains)
-        profileSharedPrefs.edit()
-            .putString(PREF_PRESET, gains)
+    fun setBandGain(presetId: Int, band: Int, gain: Int) {
+        sharedPreferences.edit().putInt("${KEY_PRESET_GAIN}_${presetId}_$band", gain).apply()
+    }
+
+    fun updatePresetGains(presetId: Int, gains: IntArray) {
+        val editor = sharedPreferences.edit()
+        gains.forEachIndexed { band, gain ->
+            editor.putInt("${KEY_PRESET_GAIN}_${presetId}_$band", gain)
+        }
+        editor.apply()
+    }
+
+    fun resetPresetGains(presetId: Int) {
+        val editor = sharedPreferences.edit()
+        for (band in 0..9) {
+            editor.remove("${KEY_PRESET_GAIN}_${presetId}_$band")
+        }
+        editor.apply()
+    }
+
+    fun addPreset(name: String): Preset {
+        val customCount = sharedPreferences.getInt(KEY_CUSTOM_PRESET_COUNT, 0)
+        val newId = CUSTOM_PRESET_BASE_ID + customCount
+
+        sharedPreferences.edit()
+            .putInt(KEY_CUSTOM_PRESET_COUNT, customCount + 1)
+            .putString("${KEY_CUSTOM_PRESET_NAME}_$newId", name)
             .apply()
+
+        val gains = (0..9).map { BandGain(it, 0) }
+        return Preset(newId, name, gains, isReadOnly = false)
     }
 
-    suspend fun addPreset(preset: Preset) = withContext(Dispatchers.IO) {
-        dlog(TAG, "addPreset($preset)")
-        presetsSharedPrefs.edit()
-            .putString(preset.name, serializeGains(preset.bandGains))
-            .apply()
+    fun renamePreset(presetId: Int, newName: String) {
+        if (presetId >= CUSTOM_PRESET_BASE_ID) {
+            sharedPreferences.edit().putString("${KEY_CUSTOM_PRESET_NAME}_$presetId", newName).apply()
+        }
     }
 
-    suspend fun removePreset(preset: Preset) = withContext(Dispatchers.IO) {
-        dlog(TAG, "removePreset($preset)")
-        presetsSharedPrefs.edit()
-            .remove(preset.name)
-            .apply()
+    fun deletePreset(presetId: Int) {
+        if (presetId >= CUSTOM_PRESET_BASE_ID) {
+            val editor = sharedPreferences.edit()
+            editor.remove("${KEY_CUSTOM_PRESET_NAME}_$presetId")
+            for (band in 0..9) {
+                editor.remove("${KEY_PRESET_GAIN}_${presetId}_$band")
+            }
+            editor.apply()
+        }
     }
 
-    private companion object {
-        const val TAG = "EqRepository"
+    companion object {
+        private const val KEY_CUSTOM_PRESET_COUNT = "custom_preset_count"
+        private const val KEY_CUSTOM_PRESET_NAME = "custom_preset_name"
+        private const val KEY_PRESET_GAIN = "preset_gain"
+        const val CUSTOM_PRESET_BASE_ID = 100
 
-        val tenBandFreqs = intArrayOf(
-            32,
-            64,
-            125,
-            250,
-            500,
-            1000,
-            2000,
-            4000,
-            8000,
-            16000
-        )
+        @Volatile
+        private var instance: EqualizerRepository? = null
 
-        fun deserializeGains(bandGains: String): List<BandGain> {
-            val gains: List<Int> =
-                bandGains.split(",").runCatching {
-                    require(size == 20) {
-                        "Preset must have 20 elements, has only $size!"
-                    }
-                    map { it.toInt() }
-                        .twentyToTenBandGains()
-                }.onFailure { exception ->
-                    Log.e(TAG, "Failed to parse preset", exception)
-                }.getOrDefault(
-                    // fallback to flat
-                    List<Int>(10) { 0 }
-                )
-            return List(10) { index ->
-                BandGain(
-                    band = tenBandFreqs[index],
-                    gain = gains[index]
-                )
+        fun getInstance(context: Context): EqualizerRepository {
+            return instance ?: synchronized(this) {
+                instance ?: EqualizerRepository(context.applicationContext).also { instance = it }
             }
         }
-
-        fun serializeGains(bandGains: List<BandGain>): String {
-            return bandGains.map { it.gain }
-                .tenToTwentyBandGains()
-                .joinToString(",")
-        }
-
-        // we show only 10 bands in UI however backend requires 20 bands
-        fun List<Int>.tenToTwentyBandGains() =
-            List<Int>(20) { index ->
-                if (index % 2 == 1 && index < 19) {
-                    // every odd element is the average of its surrounding elements
-                    (this[(index - 1) / 2] + this[(index + 1) / 2]) / 2
-                } else {
-                    this[index / 2]
-                }
-            }
-
-        fun List<Int>.twentyToTenBandGains() =
-            // skip every odd element
-            filterIndexed { index, _ -> index % 2 == 0 }
     }
 }
