@@ -29,6 +29,8 @@
         <item>@string/dolby_preset_hiphop</item>
         <item>@string/dolby_preset_blues</item>
         <item>@string/dolby_preset_electronic</item>
+        <item>@string/dolby_preset_country</item>
+        <item>@string/dolby_preset_dance</item>
         <item>@string/dolby_preset_metal</item>
     </string-array>
 

@@ -17,17 +17,17 @@ class EqualizerRepository private constructor(private val context: Context) {
 
     private val presetNames = context.resources.getStringArray(R.array.dolby_preset_entries)
     private val defaultPresets = listOf(
-        Preset(0, presetNames[0], (0..9).map { BandGain(it, 0) }, isReadOnly = true),
-        Preset(1, presetNames[1], listOf(BandGain(0, 4), BandGain(1, 3), BandGain(2, 2), BandGain(3, 0), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
-        Preset(2, presetNames[2], listOf(BandGain(0, 3), BandGain(1, 2), BandGain(2, 1), BandGain(3, 2), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
-        Preset(3, presetNames[3], listOf(BandGain(0, -1), BandGain(1, 1), BandGain(2, 3), BandGain(3, 4), BandGain(4, 3), BandGain(5, 0), BandGain(6, -1), BandGain(7, -1), BandGain(8, -1), BandGain(9, -1)), isReadOnly = true),
-        Preset(4, presetNames[4], listOf(BandGain(0, 4), BandGain(1, 3), BandGain(2, 2), BandGain(3, 2), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 2), BandGain(8, 3), BandGain(9, 4)), isReadOnly = true),
-        Preset(5, presetNames[5], listOf(BandGain(0, 4), BandGain(1, 3), BandGain(2, 0), BandGain(3, 2), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
-        Preset(6, presetNames[6], listOf(BandGain(0, 2), BandGain(1, 1), BandGain(2, 2), BandGain(3, -1), BandGain(4, 0), BandGain(5, 1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
-        Preset(7, presetNames[7], listOf(BandGain(0, 3), BandGain(1, 2), BandGain(2, 0), BandGain(3, 0), BandGain(4, -1), BandGain(5, 2), BandGain(6, 1), BandGain(7, 1), BandGain(8, 3), BandGain(9, 4)), isReadOnly = true),
-        Preset(8, presetNames[8], listOf(BandGain(0, 2), BandGain(1, 1), BandGain(2, 0), BandGain(3, 2), BandGain(4, 2), BandGain(5, 1), BandGain(6, 0), BandGain(7, 2), BandGain(8, 3), BandGain(9, 3)), isReadOnly = true),
-        Preset(9, presetNames[9], listOf(BandGain(0, 3), BandGain(1, 5), BandGain(2, 2), BandGain(3, 0), BandGain(4, 1), BandGain(5, 2), BandGain(6, 3), BandGain(7, 2), BandGain(8, 1), BandGain(9, 0)), isReadOnly = true),
-        Preset(10, presetNames[10], listOf(BandGain(0, 3), BandGain(1, 2), BandGain(2, 1), BandGain(3, 0), BandGain(4, -1), BandGain(5, -1), BandGain(6, 1), BandGain(7, 2), BandGain(8, 3), BandGain(9, 4)), isReadOnly = true)
+        Preset(0, presetNames.getOrElse(0) { "Flat (off)" }, (0..9).map { BandGain(it, 0) }, isReadOnly = true),
+        Preset(1, presetNames.getOrElse(1) { "Rock" }, listOf(BandGain(0, 4), BandGain(1, 3), BandGain(2, 2), BandGain(3, 0), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
+        Preset(2, presetNames.getOrElse(2) { "Jazz" }, listOf(BandGain(0, 3), BandGain(1, 2), BandGain(2, 1), BandGain(3, 2), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
+        Preset(3, presetNames.getOrElse(3) { "Pop" }, listOf(BandGain(0, -1), BandGain(1, 1), BandGain(2, 3), BandGain(3, 4), BandGain(4, 3), BandGain(5, 0), BandGain(6, -1), BandGain(7, -1), BandGain(8, -1), BandGain(9, -1)), isReadOnly = true),
+        Preset(4, presetNames.getOrElse(4) { "Classical" }, listOf(BandGain(0, 4), BandGain(1, 3), BandGain(2, 2), BandGain(3, 2), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 2), BandGain(8, 3), BandGain(9, 4)), isReadOnly = true),
+        Preset(5, presetNames.getOrElse(5) { "Hip Hop" }, listOf(BandGain(0, 4), BandGain(1, 3), BandGain(2, 0), BandGain(3, 2), BandGain(4, -1), BandGain(5, -1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
+        Preset(6, presetNames.getOrElse(6) { "Blues" }, listOf(BandGain(0, 2), BandGain(1, 1), BandGain(2, 2), BandGain(3, -1), BandGain(4, 0), BandGain(5, 1), BandGain(6, 0), BandGain(7, 1), BandGain(8, 2), BandGain(9, 3)), isReadOnly = true),
+        Preset(7, presetNames.getOrElse(7) { "Electronic" }, listOf(BandGain(0, 3), BandGain(1, 2), BandGain(2, 0), BandGain(3, 0), BandGain(4, -1), BandGain(5, 2), BandGain(6, 1), BandGain(7, 1), BandGain(8, 3), BandGain(9, 4)), isReadOnly = true),
+        Preset(8, presetNames.getOrElse(8) { "Country" }, listOf(BandGain(0, 2), BandGain(1, 1), BandGain(2, 0), BandGain(3, 2), BandGain(4, 2), BandGain(5, 1), BandGain(6, 0), BandGain(7, 2), BandGain(8, 3), BandGain(9, 3)), isReadOnly = true),
+        Preset(9, presetNames.getOrElse(9) { "Dance" }, listOf(BandGain(0, 3), BandGain(1, 5), BandGain(2, 2), BandGain(3, 0), BandGain(4, 1), BandGain(5, 2), BandGain(6, 3), BandGain(7, 2), BandGain(8, 1), BandGain(9, 0)), isReadOnly = true),
+        Preset(10, presetNames.getOrElse(10) { "Metal" }, listOf(BandGain(0, 3), BandGain(1, 2), BandGain(2, 1), BandGain(3, 0), BandGain(4, -1), BandGain(5, -1), BandGain(6, 1), BandGain(7, 2), BandGain(8, 3), BandGain(9, 4)), isReadOnly = true)
     )
 
     fun getAllPresets(): List<Preset> {
