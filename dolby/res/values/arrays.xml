@@ -55,6 +55,19 @@
         <item>40,24,8,8,8,-4,-16,-12,-8,-32,-56,-24,8,8,8,8,8,8,8,8</item>
     </string-array>
 
+    <string-array name="dolby_geq_band_freqs" translatable="false">
+        <item>32Hz</item>
+        <item>64Hz</item>
+        <item>125Hz</item>
+        <item>250Hz</item>
+        <item>500Hz</item>
+        <item>1kHz</item>
+        <item>2kHz</item>
+        <item>4kHz</item>
+        <item>8kHz</item>
+        <item>16kHz</item>
+    </string-array>
+
     <string-array name="dolby_dialogue_entries">
         <item>@string/dolby_off</item>
         <item>@string/dolby_low</item>
