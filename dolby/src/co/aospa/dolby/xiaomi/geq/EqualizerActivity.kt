@@ -16,18 +16,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import co.aospa.dolby.xiaomi.R
 import co.aospa.dolby.xiaomi.geq.ui.EqualizerScreen
@@ -47,11 +52,17 @@ class EqualizerActivity : ComponentActivity() {
         setContent {
             SettingsTheme {
                 var showingPresetsScreen by remember { mutableStateOf(false) }
+                var showAddPresetDialog by remember { mutableStateOf(false) }
+
+                val topAppBarState = rememberTopAppBarState()
+                val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
 
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .nestedScroll(scrollBehavior.nestedScrollConnection),
                     topBar = {
-                        TopAppBar(
+                        LargeTopAppBar(
                             title = {
                                 Text(
                                     stringResource(
@@ -74,14 +85,30 @@ class EqualizerActivity : ComponentActivity() {
                                     )
                                 }
                             },
-                            colors = TopAppBarDefaults.topAppBarColors()
+                            scrollBehavior = scrollBehavior
                         )
+                    },
+                    floatingActionButton = {
+                        if (showingPresetsScreen) {
+                            FloatingActionButton(
+                                onClick = { showAddPresetDialog = true },
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Add,
+                                    contentDescription = stringResource(R.string.dolby_geq_new_preset)
+                                )
+                            }
+                        }
                     }
                 ) { innerPadding ->
                     if (showingPresetsScreen) {
                         PresetsScreen(
                             viewModel = viewModel,
                             onNavigateBack = { showingPresetsScreen = false },
+                            showAddDialog = showAddPresetDialog,
+                            onDismissAddDialog = { showAddPresetDialog = false },
                             modifier = Modifier.padding(innerPadding)
                         )
                     } else {

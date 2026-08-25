@@ -131,6 +131,12 @@ fun EqualizerScreen(
         ConfirmationDialog(
             title = stringResource(R.string.dolby_geq_reset_gains),
             message = stringResource(R.string.dolby_geq_reset_gains_prompt),
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.RestartAlt,
+                    contentDescription = null
+                )
+            },
             onConfirm = {
                 viewModel.resetGains()
                 showResetDialog = false

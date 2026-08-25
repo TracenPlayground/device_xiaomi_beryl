@@ -12,8 +12,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,16 +21,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -42,12 +44,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -58,6 +60,8 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.android.settingslib.spa.framework.theme.SettingsTheme
+import com.android.settingslib.spa.widget.preference.MainSwitchPreference
+import com.android.settingslib.spa.widget.preference.SwitchPreferenceModel
 
 class DolbyTileService : TileService() {
 
@@ -192,8 +196,9 @@ private fun DolbyQsDialogContent(
     val profileValues = stringArrayResource(R.array.dolby_profile_values)
 
     Surface(
-        color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(28.dp),
+        color = AlertDialogDefaults.containerColor,
+        shape = AlertDialogDefaults.shape,
+        tonalElevation = AlertDialogDefaults.TonalElevation,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
@@ -216,107 +221,89 @@ private fun DolbyQsDialogContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Surface(
-                color = if (isDsOn) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable {
-                        val newState = !isDsOn
-                        isDsOn = newState
-                        onDsOnChanged(newState)
-                    }
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.dolby_enable),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = if (isDsOn) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Switch(
-                        checked = isDsOn,
-                        onCheckedChange = { checked ->
+            val enableTitle = stringResource(R.string.dolby_enable)
+            MainSwitchPreference(
+                model = remember(isDsOn, enableTitle) {
+                    object : SwitchPreferenceModel {
+                        override val title = enableTitle
+                        override val checked = { isDsOn }
+                        override val changeable = { true }
+                        override val onCheckedChange = { checked: Boolean ->
                             isDsOn = checked
                             onDsOnChanged(checked)
                         }
-                    )
+                    }
                 }
-            }
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectableGroup()
+                    .verticalScroll(rememberScrollState())
             ) {
                 for (i in profileValues.indices) {
                     val profileId = profileValues[i].toInt()
                     val profileName = profileEntries.getOrElse(i) { profileValues[i] }
                     val isSelected = (profileId == currentProfile) && isDsOn
+                    val isEnabled = isDsOn
 
-                    val tileColor: Color by animateColorAsState(
-                        when {
-                            isSelected -> MaterialTheme.colorScheme.primary
-                            isDsOn -> MaterialTheme.colorScheme.surfaceVariant
-                            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        }
-                    )
-                    val contentColor: Color by animateColorAsState(
-                        when {
-                            isSelected -> MaterialTheme.colorScheme.onPrimary
-                            isDsOn -> MaterialTheme.colorScheme.onSurfaceVariant
-                            else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                        }
-                    )
+                    val itemIconRes = when (profileId) {
+                        1 -> R.drawable.ic_dolby_movie
+                        2 -> R.drawable.ic_dolby_music
+                        8 -> R.drawable.ic_dolby_voice
+                        else -> R.drawable.ic_dolby_dynamic
+                    }
 
-                    Surface(
-                        color = tileColor,
-                        shape = RoundedCornerShape(16.dp),
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .clickable(enabled = isDsOn) {
-                                currentProfile = profileId
-                                onProfileSelected(profileId)
-                            }
+                            .clip(RoundedCornerShape(12.dp))
+                            .selectable(
+                                selected = isSelected,
+                                enabled = isEnabled,
+                                onClick = {
+                                    currentProfile = profileId
+                                    onProfileSelected(profileId)
+                                },
+                                role = Role.RadioButton
+                            )
+                            .padding(horizontal = 8.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_dolby),
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp),
-                                tint = contentColor
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = profileName,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Medium,
-                                color = contentColor,
-                                modifier = Modifier.weight(1f)
-                            )
-                            if (isSelected) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Check,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                    tint = contentColor
-                                )
+                        RadioButton(
+                            selected = isSelected,
+                            onClick = null,
+                            enabled = isEnabled
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Icon(
+                            painter = painterResource(id = itemIconRes),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = if (isSelected) {
+                                MaterialTheme.colorScheme.primary
+                            } else if (isEnabled) {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                             }
-                        }
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = profileName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (isSelected) {
+                                MaterialTheme.colorScheme.primary
+                            } else if (isEnabled) {
+                                MaterialTheme.colorScheme.onSurface
+                            } else {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
             }
@@ -328,19 +315,13 @@ private fun DolbyQsDialogContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedButton(
-                    onClick = onOpenSettings,
-                    shape = RoundedCornerShape(20.dp)
-                ) {
+                TextButton(onClick = onOpenSettings) {
                     Text(
                         text = stringResource(R.string.dolby_category_settings),
                         style = MaterialTheme.typography.labelLarge
                     )
                 }
-                Button(
-                    onClick = onDismiss,
-                    shape = RoundedCornerShape(20.dp)
-                ) {
+                Button(onClick = onDismiss) {
                     Text(
                         text = stringResource(R.string.dolby_done),
                         style = MaterialTheme.typography.labelLarge

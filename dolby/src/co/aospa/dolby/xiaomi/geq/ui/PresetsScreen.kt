@@ -26,11 +26,9 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -50,39 +48,24 @@ import co.aospa.dolby.xiaomi.geq.data.Preset
 fun PresetsScreen(
     viewModel: EqualizerViewModel,
     onNavigateBack: () -> Unit,
+    showAddDialog: Boolean = false,
+    onDismissAddDialog: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val presets by viewModel.presets.collectAsState()
     val currentPreset by viewModel.currentPreset.collectAsState()
 
-    var showAddDialog by remember { mutableStateOf(false) }
     var presetToRename by remember { mutableStateOf<Preset?>(null) }
     var presetToDelete by remember { mutableStateOf<Preset?>(null) }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Add,
-                    contentDescription = stringResource(R.string.dolby_geq_new_preset)
-                )
-            }
-        },
-        modifier = modifier.fillMaxSize()
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(presets, key = { it.id }) { preset ->
-                val isSelected = preset.id == currentPreset?.id
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(presets, key = { it.id }) { preset ->
+            val isSelected = preset.id == currentPreset?.id
 
                 Card(
                     shape = RoundedCornerShape(16.dp),
@@ -152,18 +135,23 @@ fun PresetsScreen(
                 Spacer(modifier = Modifier.height(72.dp))
             }
         }
-    }
 
     if (showAddDialog) {
         PresetNameDialog(
             title = stringResource(R.string.dolby_geq_new_preset),
             initialName = "",
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Add,
+                    contentDescription = null
+                )
+            },
             existingNames = presets.map { it.name },
             onConfirm = { name ->
                 viewModel.addPreset(name)
-                showAddDialog = false
+                onDismissAddDialog()
             },
-            onDismiss = { showAddDialog = false }
+            onDismiss = onDismissAddDialog
         )
     }
 
@@ -171,6 +159,12 @@ fun PresetsScreen(
         PresetNameDialog(
             title = stringResource(R.string.dolby_geq_rename_preset),
             initialName = preset.name,
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = null
+                )
+            },
             existingNames = presets.filter { it.id != preset.id }.map { it.name },
             onConfirm = { newName ->
                 viewModel.renamePreset(preset.id, newName)
@@ -184,6 +178,13 @@ fun PresetsScreen(
         ConfirmationDialog(
             title = stringResource(R.string.dolby_geq_delete_preset),
             message = stringResource(R.string.dolby_geq_delete_preset_prompt),
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
             onConfirm = {
                 viewModel.deletePreset(preset.id)
                 presetToDelete = null

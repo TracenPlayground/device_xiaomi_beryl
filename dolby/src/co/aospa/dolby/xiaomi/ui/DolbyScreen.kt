@@ -43,9 +43,6 @@ import androidx.compose.ui.unit.dp
 import co.aospa.dolby.xiaomi.R
 import co.aospa.dolby.xiaomi.geq.EqualizerActivity
 import com.android.settingslib.spa.framework.theme.SettingsDimension
-import com.android.settingslib.spa.widget.preference.ListPreference
-import com.android.settingslib.spa.widget.preference.ListPreferenceModel
-import com.android.settingslib.spa.widget.preference.ListPreferenceOption
 import com.android.settingslib.spa.widget.preference.MainSwitchPreference
 import com.android.settingslib.spa.widget.preference.Preference
 import com.android.settingslib.spa.widget.preference.PreferenceModel
@@ -113,13 +110,19 @@ fun DolbyScreen(
 
         // Profile Selector Category
         Category {
-            ListPreference(
+            IconListPreference(
                 model = remember(profile, dsOn) {
-                    object : ListPreferenceModel {
+                    object : IconListPreferenceModel {
                         override val title = context.getString(R.string.dolby_profile_title)
                         override val icon = @Composable {
+                            val profileIconRes = when (profile) {
+                                1 -> R.drawable.ic_dolby_movie
+                                2 -> R.drawable.ic_dolby_music
+                                8 -> R.drawable.ic_dolby_voice
+                                else -> R.drawable.ic_dolby_dynamic
+                            }
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_dolby),
+                                painter = painterResource(id = profileIconRes),
                                 contentDescription = null,
                                 modifier = Modifier.size(SettingsDimension.itemIconSize),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -127,9 +130,17 @@ fun DolbyScreen(
                         }
                         override val enabled = { dsOn }
                         override val options = profileValues.mapIndexed { index, valueStr ->
-                            ListPreferenceOption(
-                                id = valueStr.toInt(),
-                                text = profileEntries.getOrElse(index) { valueStr }
+                            val id = valueStr.toInt()
+                            val itemIconRes = when (id) {
+                                1 -> R.drawable.ic_dolby_movie
+                                2 -> R.drawable.ic_dolby_music
+                                8 -> R.drawable.ic_dolby_voice
+                                else -> R.drawable.ic_dolby_dynamic
+                            }
+                            IconListPreferenceOption(
+                                id = id,
+                                text = profileEntries.getOrElse(index) { valueStr },
+                                iconRes = itemIconRes
                             )
                         }
                         override val selectedId = androidx.compose.runtime.mutableIntStateOf(profile)
@@ -161,9 +172,9 @@ fun DolbyScreen(
             )
 
             // Intelligent Equalizer
-            ListPreference(
+            IconListPreference(
                 model = remember(ieqPreset, dsOn) {
-                    object : ListPreferenceModel {
+                    object : IconListPreferenceModel {
                         override val title = context.getString(R.string.dolby_ieq)
                         override val icon = @Composable {
                             val iconRes = when (ieqPreset) {
@@ -181,9 +192,17 @@ fun DolbyScreen(
                         }
                         override val enabled = { dsOn }
                         override val options = ieqValues.mapIndexed { index, valueStr ->
-                            ListPreferenceOption(
-                                id = valueStr.toInt(),
-                                text = ieqEntries.getOrElse(index) { valueStr }
+                            val id = valueStr.toInt()
+                            val itemIconRes = when (id) {
+                                1 -> R.drawable.ic_ieq_balanced
+                                2 -> R.drawable.ic_ieq_warm
+                                3 -> R.drawable.ic_ieq_detailed
+                                else -> R.drawable.ic_ieq_off
+                            }
+                            IconListPreferenceOption(
+                                id = id,
+                                text = ieqEntries.getOrElse(index) { valueStr },
+                                iconRes = itemIconRes
                             )
                         }
                         override val selectedId = androidx.compose.runtime.mutableIntStateOf(ieqPreset)
