@@ -29,6 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Surface
+
 @Composable
 fun BandGainSlider(
     band: Int,
@@ -52,12 +55,26 @@ fun BandGainSlider(
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Text(
-                text = if (displayGain > 0) "+$displayGain dB" else "$displayGain dB",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = if (displayGain != 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Surface(
+                color = if (displayGain != 0) {
+                    MaterialTheme.colorScheme.secondaryContainer
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHigh
+                },
+                shape = CircleShape
+            ) {
+                Text(
+                    text = if (displayGain > 0) "+$displayGain dB" else "$displayGain dB",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (displayGain != 0) {
+                        MaterialTheme.colorScheme.onSecondaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(2.dp))

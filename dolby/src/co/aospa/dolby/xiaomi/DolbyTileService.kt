@@ -63,6 +63,10 @@ import com.android.settingslib.spa.framework.theme.SettingsTheme
 import com.android.settingslib.spa.widget.preference.MainSwitchPreference
 import com.android.settingslib.spa.widget.preference.SwitchPreferenceModel
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.CircleShape
+import co.aospa.dolby.xiaomi.data.ProfileRepository
+
 class DolbyTileService : TileService() {
 
     private val dolbyController by lazy { DolbyController.getInstance(applicationContext) }
@@ -192,8 +196,8 @@ private fun DolbyQsDialogContent(
     var isDsOn by remember { mutableStateOf(initialDsOn) }
     var currentProfile by remember { mutableIntStateOf(initialProfile) }
 
-    val profileEntries = stringArrayResource(R.array.dolby_profile_entries)
-    val profileValues = stringArrayResource(R.array.dolby_profile_values)
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val profiles = remember { ProfileRepository.getInstance(context).getAllProfiles() }
 
     Surface(
         color = AlertDialogDefaults.containerColor,
@@ -236,31 +240,30 @@ private fun DolbyQsDialogContent(
                 }
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .selectableGroup()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                for (i in profileValues.indices) {
-                    val profileId = profileValues[i].toInt()
-                    val profileName = profileEntries.getOrElse(i) { profileValues[i] }
+                for (profile in profiles) {
+                    val profileId = profile.id
                     val isSelected = (profileId == currentProfile) && isDsOn
                     val isEnabled = isDsOn
 
-                    val itemIconRes = when (profileId) {
-                        1 -> R.drawable.ic_dolby_movie
-                        2 -> R.drawable.ic_dolby_music
-                        8 -> R.drawable.ic_dolby_voice
-                        else -> R.drawable.ic_dolby_dynamic
-                    }
-
-                    Row(
+                    Surface(
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        },
+                        shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(16.dp))
                             .selectable(
                                 selected = isSelected,
                                 enabled = isEnabled,
@@ -270,40 +273,67 @@ private fun DolbyQsDialogContent(
                                 },
                                 role = Role.RadioButton
                             )
-                            .padding(horizontal = 8.dp, vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        RadioButton(
-                            selected = isSelected,
-                            onClick = null,
-                            enabled = isEnabled
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Icon(
-                            painter = painterResource(id = itemIconRes),
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                            tint = if (isSelected) {
-                                MaterialTheme.colorScheme.primary
-                            } else if (isEnabled) {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = if (isSelected) {
+                                    MaterialTheme.colorScheme.primary
+                                } else if (isEnabled) {
+                                    MaterialTheme.colorScheme.surface
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceVariant
+                                },
+                                modifier = Modifier.size(36.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        painter = painterResource(id = profile.iconRes),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(20.dp),
+                                        tint = if (isSelected) {
+                                            MaterialTheme.colorScheme.onPrimary
+                                        } else if (isEnabled) {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                                        }
+                                    )
+                                }
                             }
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = profileName,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (isSelected) {
-                                MaterialTheme.colorScheme.primary
-                            } else if (isEnabled) {
-                                MaterialTheme.colorScheme.onSurface
-                            } else {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = profile.name,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                    color = if (isSelected) {
+                                        MaterialTheme.colorScheme.onPrimaryContainer
+                                    } else if (isEnabled) {
+                                        MaterialTheme.colorScheme.onSurface
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                                    }
+                                )
+                                if (isSelected) {
+                                    Text(
+                                        text = stringResource(R.string.dolby_on),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
+                                    )
+                                }
+                            }
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = null,
+                                enabled = isEnabled
+                            )
+                        }
                     }
                 }
             }

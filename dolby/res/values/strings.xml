@@ -85,16 +85,25 @@
     <string name="dolby_output_line">Audio line out</string>
     <string name="dolby_output_format">Active output: %1$s</string>
 
-    <!-- Backup and restore -->
-    <string name="dolby_category_backup">Backup and restore</string>
-    <string name="dolby_export_settings">Export settings</string>
-    <string name="dolby_export_settings_summary">Save Dolby and equalizer configuration to a JSON file</string>
-    <string name="dolby_import_settings">Import settings</string>
-    <string name="dolby_import_settings_summary">Restore configuration from a JSON file</string>
-    <string name="dolby_export_success">Settings exported successfully</string>
-    <string name="dolby_export_failed">Failed to export settings</string>
-    <string name="dolby_import_success">Settings imported successfully</string>
-    <string name="dolby_import_failed">Failed to import settings</string>
+    <!-- Profile management & Backup -->
+    <string name="dolby_category_profile_mgmt">Profile management</string>
+    <string name="dolby_profile_save_as_new">Save as new profile</string>
+    <string name="dolby_profile_save_as_new_summary">Save current Dolby parameters and equalizer preset as a user profile</string>
+    <string name="dolby_profile_save_title">Save Profile</string>
+    <string name="dolby_profile_name_label">Profile name</string>
+    <string name="dolby_profile_rename">Rename current profile</string>
+    <string name="dolby_profile_delete">Delete current profile</string>
+    <string name="dolby_profile_delete_prompt">Do you want to delete this custom profile? This cannot be undone.</string>
+    <string name="dolby_profile_name_exists">Profile name already exists</string>
+    <string name="dolby_profile_name_too_long">Profile name is too long</string>
+    <string name="dolby_export_profile">Export current profile</string>
+    <string name="dolby_export_profile_summary">Export active profile and its equalizer preset to a JSON file</string>
+    <string name="dolby_import_profile">Import profile</string>
+    <string name="dolby_import_profile_summary">Import a profile and its equalizer preset from a JSON file</string>
+    <string name="dolby_export_success">Profile exported successfully</string>
+    <string name="dolby_export_failed">Failed to export profile</string>
+    <string name="dolby_import_success">Profile imported successfully</string>
+    <string name="dolby_import_failed">Failed to import profile</string>
 
     <!-- Quick Settings Tile -->
     <string name="dolby_qs_select_profile">Choose sound profile</string>

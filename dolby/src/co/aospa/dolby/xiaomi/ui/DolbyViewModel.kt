@@ -20,6 +20,9 @@ import androidx.preference.PreferenceManager
 import co.aospa.dolby.xiaomi.DolbyConstants
 import co.aospa.dolby.xiaomi.DolbyConstants.Companion.dlog
 import co.aospa.dolby.xiaomi.DolbyController
+import co.aospa.dolby.xiaomi.data.DolbyConfigSerializer
+import co.aospa.dolby.xiaomi.data.DolbyProfile
+import co.aospa.dolby.xiaomi.data.ProfileRepository
 import co.aospa.dolby.xiaomi.geq.data.EqualizerRepository
 import co.aospa.dolby.xiaomi.preference.DolbyPreferenceStore
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +33,7 @@ import kotlinx.coroutines.launch
 class DolbyViewModel(application: Application) : AndroidViewModel(application) {
 
     private val dolbyController = DolbyController.getInstance(application)
+    private val profileRepository = ProfileRepository.getInstance(application)
     private val audioManager = application.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(application)
     private val preferenceStore = DolbyPreferenceStore(application)
@@ -39,6 +43,12 @@ class DolbyViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _profile = MutableStateFlow(dolbyController.profile)
     val profile: StateFlow<Int> = _profile.asStateFlow()
+
+    private val _profiles = MutableStateFlow(profileRepository.getAllProfiles())
+    val profiles: StateFlow<List<DolbyProfile>> = _profiles.asStateFlow()
+
+    private val _isCurrentProfileCustom = MutableStateFlow(profileRepository.isCustomProfile(dolbyController.profile))
+    val isCurrentProfileCustom: StateFlow<Boolean> = _isCurrentProfileCustom.asStateFlow()
 
     private val _presetName = MutableStateFlow(getPresetDisplayName())
     val presetName: StateFlow<String> = _presetName.asStateFlow()
@@ -147,9 +157,46 @@ class DolbyViewModel(application: Application) : AndroidViewModel(application) {
         refreshAllSettings()
     }
 
+    fun saveCurrentProfileAsCustom(name: String): Boolean {
+        val baseId = profileRepository.getProfile(dolbyController.profile)?.baseProfileId ?: 0
+        val newProfile = profileRepository.createCustomProfile(name, baseId)
+        val newId = newProfile.id
+
+        val editor = sharedPreferences.edit()
+        editor.putInt("${DolbyConstants.PREF_IEQ}_$newId", dolbyController.ieqPreset)
+        editor.putInt("${DolbyConstants.PREF_DIALOGUE}_$newId", dolbyController.dialogueEnhancerAmount)
+        editor.putBoolean("${DolbyConstants.PREF_BASS}_$newId", dolbyController.bassEnhancerEnabled)
+        editor.putInt("${DolbyConstants.PREF_STEREO}_$newId", dolbyController.stereoWideningAmount)
+        editor.putBoolean("${DolbyConstants.PREF_VOLUME}_$newId", dolbyController.volumeLevelerEnabled)
+        editor.putBoolean("${DolbyConstants.PREF_HP_VIRTUALIZER}_$newId", dolbyController.headphoneVirtEnabled)
+        editor.putBoolean("${DolbyConstants.PREF_SPK_VIRTUALIZER}_$newId", dolbyController.speakerVirtEnabled)
+
+        val activePresetId = sharedPreferences.getInt("${DolbyConstants.PREF_PRESET}_${dolbyController.profile}", 0)
+        editor.putInt("${DolbyConstants.PREF_PRESET}_$newId", activePresetId)
+        editor.apply()
+
+        setProfile(newId)
+        return true
+    }
+
+    fun renameCurrentProfile(newName: String) {
+        profileRepository.renameCustomProfile(dolbyController.profile, newName)
+        refreshAllSettings()
+    }
+
+    fun deleteCurrentProfile() {
+        val currentId = dolbyController.profile
+        if (profileRepository.isCustomProfile(currentId)) {
+            profileRepository.deleteCustomProfile(currentId)
+            setProfile(0)
+        }
+    }
+
     private fun refreshAllSettings() {
         _dsOn.value = dolbyController.dsOn
         _profile.value = dolbyController.profile
+        _profiles.value = profileRepository.getAllProfiles()
+        _isCurrentProfileCustom.value = profileRepository.isCustomProfile(dolbyController.profile)
         _ieqPreset.value = dolbyController.ieqPreset
         _dialogueEnhancerAmount.value = dolbyController.dialogueEnhancerAmount
         _bassEnhancerEnabled.value = dolbyController.bassEnhancerEnabled
@@ -172,14 +219,14 @@ class DolbyViewModel(application: Application) : AndroidViewModel(application) {
         return preset?.name ?: app.getString(co.aospa.dolby.xiaomi.R.string.dolby_preset_default)
     }
 
-    fun exportSettings(uri: Uri): Boolean {
+    fun exportProfile(uri: Uri): Boolean {
         val app = getApplication<Application>()
-        return co.aospa.dolby.xiaomi.data.DolbyConfigSerializer.exportToUri(app, uri)
+        return DolbyConfigSerializer.exportProfileToUri(app, uri)
     }
 
-    fun importSettings(uri: Uri): Boolean {
+    fun importProfile(uri: Uri): Boolean {
         val app = getApplication<Application>()
-        val success = co.aospa.dolby.xiaomi.data.DolbyConfigSerializer.importFromUri(app, uri)
+        val success = DolbyConfigSerializer.importProfileFromUri(app, uri)
         if (success) {
             refreshAllSettings()
         }

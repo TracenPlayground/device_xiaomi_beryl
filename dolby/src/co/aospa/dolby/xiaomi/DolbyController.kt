@@ -16,12 +16,14 @@ import android.os.Looper
 import co.aospa.dolby.xiaomi.DolbyConstants.Companion.dlog
 import co.aospa.dolby.xiaomi.DolbyConstants.DsParam
 import co.aospa.dolby.xiaomi.R
+import co.aospa.dolby.xiaomi.data.ProfileRepository
 import co.aospa.dolby.xiaomi.preference.DolbyPreferenceStore
 
 class DolbyController private constructor(private val context: Context) {
 
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val preferenceStore = DolbyPreferenceStore(context)
+    private val profileRepository by lazy { ProfileRepository.getInstance(context) }
     private var dolbyAudioEffect: DolbyAudioEffect? = null
     private val handler = Handler(Looper.getMainLooper())
 
@@ -85,17 +87,15 @@ class DolbyController private constructor(private val context: Context) {
         }
 
     var profile: Int
-        get() = dolbyAudioEffect?.getProfile() ?: preferenceStore.profile
+        get() = preferenceStore.profile
         set(value) {
             preferenceStore.profile = value
-            dolbyAudioEffect?.setProfile(value)
+            val baseId = profileRepository.getProfile(value)?.baseProfileId ?: value
+            dolbyAudioEffect?.setProfile(baseId)
         }
 
     fun getProfileName(): String? {
-        val entries = context.resources.getStringArray(R.array.dolby_profile_entries)
-        val values = context.resources.getStringArray(R.array.dolby_profile_values)
-        val index = values.indexOf(profile.toString())
-        return if (index >= 0) entries.getOrNull(index) else null
+        return profileRepository.getProfileName(profile)
     }
 
     var ieqPreset: Int

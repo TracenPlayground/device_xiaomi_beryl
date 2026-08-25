@@ -12,13 +12,26 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AddCircleOutline
+import androidx.compose.material.icons.outlined.Bluetooth
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material.icons.outlined.GraphicEq
@@ -27,21 +40,31 @@ import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material.icons.outlined.Speaker
 import androidx.compose.material.icons.outlined.SurroundSound
 import androidx.compose.material.icons.outlined.Tune
+import androidx.compose.material.icons.outlined.Usb
 import androidx.compose.material.icons.outlined.VolumeUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import co.aospa.dolby.xiaomi.R
 import co.aospa.dolby.xiaomi.geq.EqualizerActivity
+import co.aospa.dolby.xiaomi.geq.ui.ConfirmationDialog
+import co.aospa.dolby.xiaomi.geq.ui.PresetNameDialog
 import com.android.settingslib.spa.framework.theme.SettingsDimension
 import com.android.settingslib.spa.widget.preference.MainSwitchPreference
 import com.android.settingslib.spa.widget.preference.Preference
@@ -59,6 +82,8 @@ fun DolbyScreen(
     val context = LocalContext.current
     val dsOn by viewModel.dsOn.collectAsState()
     val profile by viewModel.profile.collectAsState()
+    val profiles by viewModel.profiles.collectAsState()
+    val isCurrentProfileCustom by viewModel.isCurrentProfileCustom.collectAsState()
     val presetName by viewModel.presetName.collectAsState()
     val ieqPreset by viewModel.ieqPreset.collectAsState()
     val speakerVirtEnabled by viewModel.speakerVirtEnabled.collectAsState()
@@ -70,8 +95,6 @@ fun DolbyScreen(
     val isOnSpeaker by viewModel.isOnSpeaker.collectAsState()
     val outputDeviceTitle by viewModel.audioOutputDeviceTitle.collectAsState()
 
-    val profileEntries = stringArrayResource(R.array.dolby_profile_entries)
-    val profileValues = stringArrayResource(R.array.dolby_profile_values)
     val ieqEntries = stringArrayResource(R.array.dolby_ieq_entries)
     val ieqValues = stringArrayResource(R.array.dolby_ieq_values)
     val stereoEntries = stringArrayResource(R.array.dolby_stereo_entries)
@@ -81,24 +104,51 @@ fun DolbyScreen(
 
     val connectHeadphonesText = stringResource(R.string.dolby_connect_headphones)
 
+    var showSaveProfileDialog by remember { mutableStateOf(false) }
+    var showRenameProfileDialog by remember { mutableStateOf(false) }
+    var showDeleteProfileDialog by remember { mutableStateOf(false) }
+
+    val currentProfileObj = remember(profiles, profile) {
+        profiles.firstOrNull { it.id == profile }
+    }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) {
+            val success = viewModel.exportProfile(uri)
+            Toast.makeText(
+                context,
+                if (success) R.string.dolby_export_success else R.string.dolby_export_failed,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            val success = viewModel.importProfile(uri)
+            Toast.makeText(
+                context,
+                if (success) R.string.dolby_import_success else R.string.dolby_import_failed,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(bottom = 24.dp)
     ) {
-        // Main Switch with Audio output subtitle
+        // Main Switch
         MainSwitchPreference(
-            model = remember(dsOn, outputDeviceTitle) {
+            model = remember(dsOn) {
                 object : SwitchPreferenceModel {
                     override val title = context.getString(R.string.dolby_enable)
-                    override val summary = {
-                        if (dsOn && outputDeviceTitle.isNotEmpty()) {
-                            context.getString(R.string.dolby_output_format, outputDeviceTitle)
-                        } else {
-                            ""
-                        }
-                    }
                     override val checked = { dsOn }
                     override val changeable = { true }
                     override val onCheckedChange = { checked: Boolean ->
@@ -108,39 +158,92 @@ fun DolbyScreen(
             }
         )
 
+        // Output Device Status Card (Material 3 Expressive)
+        if (dsOn && outputDeviceTitle.isNotEmpty()) {
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            val outputIcon = when {
+                                isOnSpeaker -> Icons.Outlined.Speaker
+                                outputDeviceTitle.startsWith("Bluetooth", ignoreCase = true) -> Icons.Outlined.Bluetooth
+                                outputDeviceTitle.startsWith("USB", ignoreCase = true) -> Icons.Outlined.Usb
+                                else -> Icons.Outlined.Headphones
+                            }
+                            Icon(
+                                imageVector = outputIcon,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.dolby_output_play_on),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = outputDeviceTitle,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Text(
+                            text = stringResource(R.string.dolby_on),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+            }
+        }
+
         // Profile Selector Category
         Category {
             IconListPreference(
-                model = remember(profile, dsOn) {
+                model = remember(profile, profiles, dsOn) {
                     object : IconListPreferenceModel {
                         override val title = context.getString(R.string.dolby_profile_title)
                         override val icon = @Composable {
-                            val profileIconRes = when (profile) {
-                                1 -> R.drawable.ic_dolby_movie
-                                2 -> R.drawable.ic_dolby_music
-                                8 -> R.drawable.ic_dolby_voice
-                                else -> R.drawable.ic_dolby_dynamic
-                            }
+                            val currentIconRes = currentProfileObj?.iconRes ?: R.drawable.ic_dolby_dynamic
                             Icon(
-                                painter = painterResource(id = profileIconRes),
+                                painter = painterResource(id = currentIconRes),
                                 contentDescription = null,
                                 modifier = Modifier.size(SettingsDimension.itemIconSize),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         override val enabled = { dsOn }
-                        override val options = profileValues.mapIndexed { index, valueStr ->
-                            val id = valueStr.toInt()
-                            val itemIconRes = when (id) {
-                                1 -> R.drawable.ic_dolby_movie
-                                2 -> R.drawable.ic_dolby_music
-                                8 -> R.drawable.ic_dolby_voice
-                                else -> R.drawable.ic_dolby_dynamic
-                            }
+                        override val options = profiles.map { profileItem ->
                             IconListPreferenceOption(
-                                id = id,
-                                text = profileEntries.getOrElse(index) { valueStr },
-                                iconRes = itemIconRes
+                                id = profileItem.id,
+                                text = profileItem.name,
+                                iconRes = profileItem.iconRes
                             )
                         }
                         override val selectedId = androidx.compose.runtime.mutableIntStateOf(profile)
@@ -150,6 +253,56 @@ fun DolbyScreen(
                     }
                 }
             )
+
+            // Save As New Profile Action
+            Preference(
+                model = remember(dsOn) {
+                    object : PreferenceModel {
+                        override val title = context.getString(R.string.dolby_profile_save_as_new)
+                        override val summary = { context.getString(R.string.dolby_profile_save_as_new_summary) }
+                        override val icon = @Composable {
+                            SettingsIcon(imageVector = Icons.Outlined.AddCircleOutline)
+                        }
+                        override val enabled = { dsOn }
+                        override val onClick = {
+                            showSaveProfileDialog = true
+                        }
+                    }
+                }
+            )
+
+            // Custom Profile Management (Rename & Delete if custom)
+            if (isCurrentProfileCustom) {
+                Preference(
+                    model = remember(dsOn, profile) {
+                        object : PreferenceModel {
+                            override val title = context.getString(R.string.dolby_profile_rename)
+                            override val icon = @Composable {
+                                SettingsIcon(imageVector = Icons.Outlined.Edit)
+                            }
+                            override val enabled = { dsOn }
+                            override val onClick = {
+                                showRenameProfileDialog = true
+                            }
+                        }
+                    }
+                )
+
+                Preference(
+                    model = remember(dsOn, profile) {
+                        object : PreferenceModel {
+                            override val title = context.getString(R.string.dolby_profile_delete)
+                            override val icon = @Composable {
+                                SettingsIcon(imageVector = Icons.Outlined.Delete)
+                            }
+                            override val enabled = { dsOn }
+                            override val onClick = {
+                                showDeleteProfileDialog = true
+                            }
+                        }
+                    }
+                )
+            }
         }
 
         // Settings Category (Segmented list items)
@@ -252,7 +405,7 @@ fun DolbyScreen(
                 }
             )
 
-            // Stereo Widening (Discrete slider inside container list with left icon)
+            // Stereo Widening (Discrete slider with pill badge)
             DiscreteSliderPreference(
                 title = stringResource(R.string.dolby_stereo_widening),
                 icon = {
@@ -267,7 +420,7 @@ fun DolbyScreen(
                 onValueChangeFinished = { viewModel.setStereoWideningAmount(it) }
             )
 
-            // Dialogue Enhancer (Discrete slider with person speaking icon on left)
+            // Dialogue Enhancer (Discrete slider with pill badge)
             DiscreteSliderPreference(
                 title = stringResource(R.string.dolby_dialogue_enhancer),
                 icon = {
@@ -336,10 +489,10 @@ fun DolbyScreen(
                         override val enabled = { dsOn }
                         override val onClick = {
                             viewModel.resetCurrentProfile()
-                            val profileName = profileEntries.getOrElse(profile) { "" }
+                            val name = currentProfileObj?.name ?: ""
                             Toast.makeText(
                                 context,
-                                context.getString(R.string.dolby_reset_profile_toast, profileName),
+                                context.getString(R.string.dolby_reset_profile_toast, name),
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -348,59 +501,36 @@ fun DolbyScreen(
             )
         }
 
-        // Backup & Restore Category
-        Category(title = stringResource(R.string.dolby_category_backup)) {
-            val exportLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.CreateDocument("application/json")
-            ) { uri ->
-                if (uri != null) {
-                    val success = viewModel.exportSettings(uri)
-                    Toast.makeText(
-                        context,
-                        if (success) R.string.dolby_export_success else R.string.dolby_export_failed,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            val importLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.OpenDocument()
-            ) { uri ->
-                if (uri != null) {
-                    val success = viewModel.importSettings(uri)
-                    Toast.makeText(
-                        context,
-                        if (success) R.string.dolby_import_success else R.string.dolby_import_failed,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            // Export Settings
+        // Profile Management & Backup Category
+        Category(title = stringResource(R.string.dolby_category_profile_mgmt)) {
+            // Export Current Profile
             Preference(
-                model = remember {
+                model = remember(dsOn, currentProfileObj) {
                     object : PreferenceModel {
-                        override val title = context.getString(R.string.dolby_export_settings)
-                        override val summary = { context.getString(R.string.dolby_export_settings_summary) }
+                        override val title = context.getString(R.string.dolby_export_profile)
+                        override val summary = { context.getString(R.string.dolby_export_profile_summary) }
                         override val icon = @Composable {
                             SettingsIcon(imageVector = Icons.Outlined.FileUpload)
                         }
+                        override val enabled = { dsOn }
                         override val onClick = {
-                            exportLauncher.launch("dolby_settings.json")
+                            val defaultFileName = "dolby_${currentProfileObj?.name?.lowercase()?.replace(" ", "_") ?: "profile"}.json"
+                            exportLauncher.launch(defaultFileName)
                         }
                     }
                 }
             )
 
-            // Import Settings
+            // Import Profile
             Preference(
-                model = remember {
+                model = remember(dsOn) {
                     object : PreferenceModel {
-                        override val title = context.getString(R.string.dolby_import_settings)
-                        override val summary = { context.getString(R.string.dolby_import_settings_summary) }
+                        override val title = context.getString(R.string.dolby_import_profile)
+                        override val summary = { context.getString(R.string.dolby_import_profile_summary) }
                         override val icon = @Composable {
                             SettingsIcon(imageVector = Icons.Outlined.FileDownload)
                         }
+                        override val enabled = { dsOn }
                         override val onClick = {
                             importLauncher.launch(arrayOf("application/json", "*/*"))
                         }
@@ -424,5 +554,66 @@ fun DolbyScreen(
                 }
             )
         }
+    }
+
+    // Save Profile Dialog
+    if (showSaveProfileDialog) {
+        PresetNameDialog(
+            title = stringResource(R.string.dolby_profile_save_title),
+            initialName = "",
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.AddCircleOutline,
+                    contentDescription = null
+                )
+            },
+            existingNames = profiles.map { it.name },
+            onConfirm = { name ->
+                viewModel.saveCurrentProfileAsCustom(name)
+                showSaveProfileDialog = false
+                Toast.makeText(context, "Saved profile: $name", Toast.LENGTH_SHORT).show()
+            },
+            onDismiss = { showSaveProfileDialog = false }
+        )
+    }
+
+    // Rename Profile Dialog
+    if (showRenameProfileDialog) {
+        PresetNameDialog(
+            title = stringResource(R.string.dolby_profile_rename),
+            initialName = currentProfileObj?.name ?: "",
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = null
+                )
+            },
+            existingNames = profiles.filter { it.id != profile }.map { it.name },
+            onConfirm = { newName ->
+                viewModel.renameCurrentProfile(newName)
+                showRenameProfileDialog = false
+            },
+            onDismiss = { showRenameProfileDialog = false }
+        )
+    }
+
+    // Delete Profile Dialog
+    if (showDeleteProfileDialog) {
+        ConfirmationDialog(
+            title = stringResource(R.string.dolby_profile_delete),
+            message = stringResource(R.string.dolby_profile_delete_prompt),
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            onConfirm = {
+                viewModel.deleteCurrentProfile()
+                showDeleteProfileDialog = false
+            },
+            onDismiss = { showDeleteProfileDialog = false }
+        )
     }
 }
