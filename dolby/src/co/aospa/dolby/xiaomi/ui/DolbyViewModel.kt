@@ -20,6 +20,7 @@ import androidx.preference.PreferenceManager
 import co.aospa.dolby.xiaomi.DolbyConstants
 import co.aospa.dolby.xiaomi.DolbyConstants.Companion.dlog
 import co.aospa.dolby.xiaomi.DolbyController
+import co.aospa.dolby.xiaomi.geq.data.EqualizerRepository
 import co.aospa.dolby.xiaomi.preference.DolbyPreferenceStore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -167,10 +168,8 @@ class DolbyViewModel(application: Application) : AndroidViewModel(application) {
             "${DolbyConstants.PREF_PRESET}_${dolbyController.profile}",
             0
         )
-        val entries = app.resources.getStringArray(co.aospa.dolby.xiaomi.R.array.dolby_preset_entries)
-        return entries.getOrElse(presetId) {
-            app.getString(co.aospa.dolby.xiaomi.R.string.dolby_preset_default)
-        }
+        val preset = EqualizerRepository.getInstance(app).getPreset(presetId)
+        return preset?.name ?: app.getString(co.aospa.dolby.xiaomi.R.string.dolby_preset_default)
     }
 
     fun exportSettings(uri: Uri): Boolean {

@@ -8,7 +8,9 @@
 package co.aospa.dolby.xiaomi.geq.data
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import co.aospa.dolby.xiaomi.DolbyConstants
 import co.aospa.dolby.xiaomi.R
 
 class EqualizerRepository private constructor(private val context: Context) {
@@ -30,14 +32,51 @@ class EqualizerRepository private constructor(private val context: Context) {
         Preset(10, presetNames.getOrElse(10) { "Metal" }, listOf(BandGain(0, 3), BandGain(1, 2), BandGain(2, 1), BandGain(3, 0), BandGain(4, -1), BandGain(5, -1), BandGain(6, 1), BandGain(7, 2), BandGain(8, 3), BandGain(9, 4)), isReadOnly = true)
     )
 
+    private fun getCustomPresetIds(): List<Int> {
+        val storedIds = sharedPreferences.getString(KEY_CUSTOM_PRESET_IDS, null)
+        if (storedIds != null) {
+            if (storedIds.isEmpty()) return emptyList()
+            return storedIds.split(",").mapNotNull { it.trim().toIntOrNull() }
+        }
+
+        val legacyCount = sharedPreferences.getInt(KEY_CUSTOM_PRESET_COUNT, 0)
+        if (legacyCount > 0) {
+            val migratedIds = mutableListOf<Int>()
+            val editor = sharedPreferences.edit()
+            for (i in 0 until legacyCount) {
+                val id = CUSTOM_PRESET_BASE_ID + i
+                if (sharedPreferences.contains("${KEY_CUSTOM_PRESET_NAME}_$id")) {
+                    migratedIds.add(id)
+                } else {
+                    for (band in 0..9) {
+                        editor.remove("${KEY_PRESET_GAIN}_${id}_$band")
+                    }
+                }
+            }
+            editor.putString(KEY_CUSTOM_PRESET_IDS, migratedIds.joinToString(","))
+            editor.remove(KEY_CUSTOM_PRESET_COUNT)
+            editor.apply()
+            return migratedIds
+        }
+
+        return emptyList()
+    }
+
+    private fun saveCustomPresetIds(ids: List<Int>, editor: SharedPreferences.Editor? = null) {
+        val targetEditor = editor ?: sharedPreferences.edit()
+        targetEditor.putString(KEY_CUSTOM_PRESET_IDS, ids.joinToString(","))
+        if (editor == null) {
+            targetEditor.apply()
+        }
+    }
+
     fun getAllPresets(): List<Preset> {
         val presets = mutableListOf<Preset>()
         presets.addAll(defaultPresets)
 
-        val customCount = sharedPreferences.getInt(KEY_CUSTOM_PRESET_COUNT, 0)
-        for (i in 0 until customCount) {
-            val id = CUSTOM_PRESET_BASE_ID + i
-            val name = sharedPreferences.getString("${KEY_CUSTOM_PRESET_NAME}_$id", "Preset ${i + 1}") ?: "Preset ${i + 1}"
+        val customIds = getCustomPresetIds()
+        for (id in customIds) {
+            val name = sharedPreferences.getString("${KEY_CUSTOM_PRESET_NAME}_$id", null) ?: continue
             val gains = getPresetGains(id)
             presets.add(Preset(id, name, gains, isReadOnly = false))
         }
@@ -45,7 +84,12 @@ class EqualizerRepository private constructor(private val context: Context) {
     }
 
     fun getPreset(presetId: Int): Preset? {
-        return getAllPresets().firstOrNull { it.id == presetId }
+        if (presetId < CUSTOM_PRESET_BASE_ID) {
+            return defaultPresets.firstOrNull { it.id == presetId }
+        }
+        val name = sharedPreferences.getString("${KEY_CUSTOM_PRESET_NAME}_$presetId", null) ?: return null
+        val gains = getPresetGains(presetId)
+        return Preset(presetId, name, gains, isReadOnly = false)
     }
 
     fun getPresetGains(presetId: Int): List<BandGain> {
@@ -82,16 +126,20 @@ class EqualizerRepository private constructor(private val context: Context) {
     }
 
     fun addPreset(name: String): Preset {
-        val customCount = sharedPreferences.getInt(KEY_CUSTOM_PRESET_COUNT, 0)
-        val newId = CUSTOM_PRESET_BASE_ID + customCount
+        val customIds = getCustomPresetIds().toMutableList()
+        val nextId = (customIds.maxOrNull() ?: (CUSTOM_PRESET_BASE_ID - 1)) + 1
+        customIds.add(nextId)
 
-        sharedPreferences.edit()
-            .putInt(KEY_CUSTOM_PRESET_COUNT, customCount + 1)
-            .putString("${KEY_CUSTOM_PRESET_NAME}_$newId", name)
-            .apply()
+        val editor = sharedPreferences.edit()
+        saveCustomPresetIds(customIds, editor)
+        editor.putString("${KEY_CUSTOM_PRESET_NAME}_$nextId", name)
+        for (band in 0..9) {
+            editor.putInt("${KEY_PRESET_GAIN}_${nextId}_$band", 0)
+        }
+        editor.apply()
 
         val gains = (0..9).map { BandGain(it, 0) }
-        return Preset(newId, name, gains, isReadOnly = false)
+        return Preset(nextId, name, gains, isReadOnly = false)
     }
 
     fun renamePreset(presetId: Int, newName: String) {
@@ -102,16 +150,30 @@ class EqualizerRepository private constructor(private val context: Context) {
 
     fun deletePreset(presetId: Int) {
         if (presetId >= CUSTOM_PRESET_BASE_ID) {
+            val customIds = getCustomPresetIds().toMutableList()
+            customIds.remove(presetId)
+
             val editor = sharedPreferences.edit()
+            saveCustomPresetIds(customIds, editor)
             editor.remove("${KEY_CUSTOM_PRESET_NAME}_$presetId")
             for (band in 0..9) {
                 editor.remove("${KEY_PRESET_GAIN}_${presetId}_$band")
             }
+
+            val profileValues = context.resources.getStringArray(R.array.dolby_profile_values)
+            for (profileVal in profileValues) {
+                val profileKey = "${DolbyConstants.PREF_PRESET}_$profileVal"
+                if (sharedPreferences.getInt(profileKey, 0) == presetId) {
+                    editor.putInt(profileKey, 0)
+                }
+            }
+
             editor.apply()
         }
     }
 
     companion object {
+        private const val KEY_CUSTOM_PRESET_IDS = "custom_preset_ids"
         private const val KEY_CUSTOM_PRESET_COUNT = "custom_preset_count"
         private const val KEY_CUSTOM_PRESET_NAME = "custom_preset_name"
         private const val KEY_PRESET_GAIN = "preset_gain"

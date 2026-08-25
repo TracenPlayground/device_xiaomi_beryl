@@ -68,6 +68,7 @@ class DolbyPreferenceStore(context: Context) {
     fun resetProfile(profileId: Int) {
         val editor = sharedPreferences.edit()
         val keysToRemove = listOf(
+            "${DolbyConstants.PREF_PRESET}_$profileId",
             "${DolbyConstants.PREF_IEQ}_$profileId",
             "${DolbyConstants.PREF_DIALOGUE}_$profileId",
             "${DolbyConstants.PREF_BASS}_$profileId",
