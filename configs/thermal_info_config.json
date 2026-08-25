@@ -1,9 +1,9 @@
 {
-    "Sensors":[
+    "Sensors": [
         {
             "Name": "cpu_little1",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -15,10 +15,10 @@
             "VrThreshold": "85.0",
             "Multiplier": 0.001
         },
-	{
+        {
             "Name": "cpu_little2",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -30,10 +30,10 @@
             "VrThreshold": "85.0",
             "Multiplier": 0.001
         },
-	{
+        {
             "Name": "cpu_little3",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -45,10 +45,10 @@
             "VrThreshold": "85.0",
             "Multiplier": 0.001
         },
-	{
+        {
             "Name": "cpu_little4",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -60,10 +60,10 @@
             "VrThreshold": "85.0",
             "Multiplier": 0.001
         },
-	{
+        {
             "Name": "cpu_little5",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -75,10 +75,10 @@
             "VrThreshold": "85.0",
             "Multiplier": 0.001
         },
-	{
+        {
             "Name": "cpu_little6",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -90,10 +90,10 @@
             "VrThreshold": "85.0",
             "Multiplier": 0.001
         },
-	{
+        {
             "Name": "cpu_little7",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -105,10 +105,10 @@
             "VrThreshold": "85.0",
             "Multiplier": 0.001
         },
-	{
+        {
             "Name": "cpu_little8",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -123,7 +123,7 @@
         {
             "Name": "cpu_big1",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -135,10 +135,10 @@
             "VrThreshold": "85.0",
             "Multiplier": 0.001
         },
-	{
+        {
             "Name": "cpu_big2",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -150,10 +150,10 @@
             "VrThreshold": "85.0",
             "Multiplier": 0.001
         },
-	{
+        {
             "Name": "cpu_big3",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -165,10 +165,10 @@
             "VrThreshold": "85.0",
             "Multiplier": 0.001
         },
-	{
+        {
             "Name": "cpu_big4",
             "Type": "CPU",
-            "HotThreshold":[
+            "HotThreshold": [
                 "NaN",
                 "NaN",
                 "NaN",
@@ -227,9 +227,9 @@
             "Monitor": true
         },
         {
-            "Name":"mt6375-gauge",
-            "Type":"BATTERY",
-            "HotThreshold":[
+            "Name": "mt6375-gauge",
+            "Type": "BATTERY",
+            "HotThreshold": [
                 "NAN",
                 "NAN",
                 "NAN",
@@ -238,13 +238,13 @@
                 59.0,
                 60.0
             ],
-            "VrThreshold":50.0,
-            "Multiplier":0.001
+            "VrThreshold": 50.0,
+            "Multiplier": 0.001
         },
         {
-            "Name":"mtk-master-charger",
-            "Type":"BATTERY",
-            "HotThreshold":[
+            "Name": "mtk-master-charger",
+            "Type": "BATTERY",
+            "HotThreshold": [
                 "NAN",
                 "NAN",
                 "NAN",
@@ -253,13 +253,13 @@
                 59.0,
                 60.0
             ],
-            "VrThreshold":50.0,
-            "Multiplier":0.001
+            "VrThreshold": 50.0,
+            "Multiplier": 0.001
         },
         {
-            "Name":"mtk-slave-charger",
-            "Type":"BATTERY",
-            "HotThreshold":[
+            "Name": "mtk-slave-charger",
+            "Type": "BATTERY",
+            "HotThreshold": [
                 "NAN",
                 "NAN",
                 "NAN",
@@ -268,13 +268,13 @@
                 59.0,
                 60.0
             ],
-            "VrThreshold":50.0,
-            "Multiplier":0.001
+            "VrThreshold": 50.0,
+            "Multiplier": 0.001
         },
         {
-            "Name":"mtk-mst-div-chg",
-            "Type":"BATTERY",
-            "HotThreshold":[
+            "Name": "mtk-mst-div-chg",
+            "Type": "BATTERY",
+            "HotThreshold": [
                 "NAN",
                 "NAN",
                 "NAN",
@@ -283,13 +283,13 @@
                 59.0,
                 60.0
             ],
-            "VrThreshold":50.0,
-            "Multiplier":0.001
+            "VrThreshold": 50.0,
+            "Multiplier": 0.001
         },
         {
-            "Name":"mtk-slv-div-chg",
-            "Type":"BATTERY",
-            "HotThreshold":[
+            "Name": "mtk-slv-div-chg",
+            "Type": "BATTERY",
+            "HotThreshold": [
                 "NAN",
                 "NAN",
                 "NAN",
@@ -298,13 +298,13 @@
                 59.0,
                 60.0
             ],
-            "VrThreshold":50.0,
-            "Multiplier":0.001
+            "VrThreshold": 50.0,
+            "Multiplier": 0.001
         },
         {
-            "Name":"mtk-mst-hvdiv-chg",
-            "Type":"BATTERY",
-            "HotThreshold":[
+            "Name": "mtk-mst-hvdiv-chg",
+            "Type": "BATTERY",
+            "HotThreshold": [
                 "NAN",
                 "NAN",
                 "NAN",
@@ -313,13 +313,13 @@
                 59.0,
                 60.0
             ],
-            "VrThreshold":50.0,
-            "Multiplier":0.001
+            "VrThreshold": 50.0,
+            "Multiplier": 0.001
         },
         {
-            "Name":"mtk-slv-hvdiv-chg",
-            "Type":"BATTERY",
-            "HotThreshold":[
+            "Name": "mtk-slv-hvdiv-chg",
+            "Type": "BATTERY",
+            "HotThreshold": [
                 "NAN",
                 "NAN",
                 "NAN",
@@ -328,8 +328,8 @@
                 59.0,
                 60.0
             ],
-            "VrThreshold":50.0,
-            "Multiplier":0.001
+            "VrThreshold": 50.0,
+            "Multiplier": 0.001
         },
         {
             "Name": "ap_ntc",
@@ -457,9 +457,9 @@
             "Type": "NPU",
             "ZoneName": "soc_max",
             "HotThreshold": [
-                "NAN",
-                "NAN",
-                "NAN",
+                "NaN",
+                "NaN",
+                "NaN",
                 85.0,
                 90.0,
                 100.0,
