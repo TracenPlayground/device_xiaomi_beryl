@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 @Composable
 fun BandGainSlider(
@@ -37,6 +38,7 @@ fun BandGainSlider(
     modifier: Modifier = Modifier
 ) {
     var sliderValue by remember(gain) { mutableFloatStateOf(gain.toFloat()) }
+    val displayGain = sliderValue.roundToInt()
 
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -51,10 +53,10 @@ fun BandGainSlider(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = if (sliderValue.toInt() > 0) "+${sliderValue.toInt()} dB" else "${sliderValue.toInt()} dB",
+                text = if (displayGain > 0) "+$displayGain dB" else "$displayGain dB",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
-                color = if (sliderValue.toInt() != 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (displayGain != 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -73,9 +75,8 @@ fun BandGainSlider(
             Slider(
                 value = sliderValue,
                 onValueChange = { sliderValue = it },
-                onValueChangeFinished = { onGainChange(sliderValue.toInt()) },
+                onValueChangeFinished = { onGainChange(sliderValue.roundToInt()) },
                 valueRange = -10f..10f,
-                steps = 19,
                 colors = SliderDefaults.colors(
                     thumbColor = MaterialTheme.colorScheme.primary,
                     activeTrackColor = MaterialTheme.colorScheme.primary,

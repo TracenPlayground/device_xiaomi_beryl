@@ -40,6 +40,7 @@ import com.android.settingslib.spa.framework.theme.SettingsSpace
 import com.android.settingslib.spa.framework.theme.isSpaExpressiveEnabled
 import com.android.settingslib.spa.widget.ui.SettingsBody
 import com.android.settingslib.spa.widget.ui.SettingsTitle
+import kotlin.math.roundToInt
 
 @Composable
 fun DiscreteSliderPreference(
@@ -62,7 +63,7 @@ fun DiscreteSliderPreference(
         mutableFloatStateOf(currentIndex.toFloat())
     }
 
-    val activeDisplayIndex = sliderIndex.toInt().coerceIn(0, (values.size - 1).coerceAtLeast(0))
+    val activeDisplayIndex = sliderIndex.roundToInt().coerceIn(0, (values.size - 1).coerceAtLeast(0))
     val currentStatusText = entries.getOrElse(activeDisplayIndex) { "" }
 
     val alphaModifier = Modifier.alphaForEnabled(enabled)
@@ -144,7 +145,7 @@ fun DiscreteSliderPreference(
                     }
                 },
                 onValueChangeFinished = {
-                    val targetIndex = sliderIndex.toInt().coerceIn(0, values.size - 1)
+                    val targetIndex = sliderIndex.roundToInt().coerceIn(0, values.size - 1)
                     val targetValue = values[targetIndex]
                     onValueChangeFinished(targetValue)
                 },
