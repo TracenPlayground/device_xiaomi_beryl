@@ -5,4 +5,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/halcyon_beryl.mk
+    $(LOCAL_DIR)/custom_beryl.mk

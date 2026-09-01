@@ -9,13 +9,14 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 
 # Inherit some common Lineage stuff.
-$(call inherit-product, vendor/halcyon/config/common.mk)
+$(call inherit-product, vendor/custom/config/common_full_phone.mk)
+
 
 # Inherit from beryl device
 $(call inherit-product, device/xiaomi/beryl/device.mk)
 
 PRODUCT_DEVICE := beryl
-PRODUCT_NAME := halcyon_beryl
+PRODUCT_NAME := custom_beryl
 PRODUCT_BRAND := Redmi
 PRODUCT_MODEL := Redmi Note 14 5G
 PRODUCT_MANUFACTURER := Xiaomi
