@@ -135,9 +135,6 @@ blob_fixups: blob_fixups_user_type = {
         .add_needed('libbase_shim.so'),
     'vendor/lib64/mt6855/libmnl.so': blob_fixup()
     .add_needed('libcutils.so'),
-    'vendor/bin/mtk_agpsd': blob_fixup()
-    .replace_needed('libcrypto.so', 'libcrypto-v33.so')
-    .add_needed('libssl.so'),
     'vendor/lib64/mt6855/libmnl_mtk.so': blob_fixup()
     .add_needed('libcutils.so'),
 #    'system_ext/priv-app/ImsService/ImsService.apk': blob_fixup()
@@ -197,7 +194,11 @@ blob_fixups: blob_fixups_user_type = {
         .add_needed('libgralloc_extra.so')
         .add_needed('libsync.so'),
     'vendor/bin/mtk_agpsd': blob_fixup()
-        .replace_needed('libssl.so', 'libssl-v36.so'),
+        .add_needed('libssl.so')
+        .replace_needed('libssl.so', 'libssl-v36.so')
+        .replace_needed('libcrypto.so', 'libcrypto-v36.so'),
+    'vendor/lib64/libssl-v36.so': blob_fixup()
+        .replace_needed('libcrypto.so', 'libcrypto-v36.so'),
     'vendor/lib64/android.hardware.audio.core-impl-mediatek.so': blob_fixup()
         .add_needed('libaudioutils-v36.so'),
      (
