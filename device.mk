@@ -110,6 +110,16 @@ PRODUCT_PACKAGES += \
     libvisualizeraidl \
     libvolumesw
 
+# Audio AIDL version compatibility
+PRODUCT_PACKAGES += \
+    android.hardware.audio.core-V3-ndk \
+    android.hardware.audio.core.sounddose-V3-ndk \
+    android.hardware.audio.effect-V3-ndk \
+    android.hardware.audio.common-V4-ndk \
+    android.media.audio.common.types-V4-ndk \
+    android.hardware.bluetooth.audio-V5-ndk \
+    android.hardware.soundtrigger3-V3-ndk
+
 # Dolby
 PRODUCT_PACKAGES += \
     XiaomiDolby
