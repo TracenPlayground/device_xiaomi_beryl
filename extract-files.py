@@ -167,11 +167,11 @@ blob_fixups: blob_fixups_user_type = {
         .replace_needed('android.hardware.graphics.common-V6-ndk.so', 'android.hardware.graphics.common-V7-ndk.so'),
          'vendor/lib64/mt6855/libmtkcam_grallocutils.so': blob_fixup()
         .replace_needed('android.hardware.graphics.common-V5-ndk.so', 'android.hardware.graphics.common-V7-ndk.so'),
-     'vendor/lib64/hw/audio.primary.mediatek.so': blob_fixup()
+    'vendor/lib64/hw/audio.primary.mediatek.so': blob_fixup()
         .replace_needed('libtinyxml2.so', 'libtinyxml2-v36.so')
-        .replace_needed('android.media.audio.common.types-V3-ndk.sp', 'android.media.audio.common.types-V4-ndk.so')
+        .replace_needed('android.media.audio.common.types-V3-ndk.so', 'android.media.audio.common.types-V4-ndk.so')
         .replace_needed('android.hardware.bluetooth.audio-V4-ndk.so', 'android.hardware.bluetooth.audio-V5-ndk.so')
-        .replace_needed( 'android.hardware.audio.effect-V2-ndk.so', 'android.hardware.audio.effect-V3-ndk.so'),
+        .replace_needed('android.hardware.audio.effect-V2-ndk.so', 'android.hardware.audio.effect-V3-ndk.so'),
     ('vendor/bin/mnld', 'vendor/lib64/mt6855/libcam.utils.sensorprovider.so', 'vendor/lib64/libmifpext.so'): blob_fixup()
         .replace_needed('android.hardware.sensors-V2-ndk.so', 'android.hardware.sensors-V3-ndk.so'),
     'vendor/lib64/hw/mt6855/vendor.mediatek.hardware.pq_aidl-impl.so': blob_fixup()
@@ -181,7 +181,8 @@ blob_fixups: blob_fixups_user_type = {
     'vendor/bin/hw/android.hardware.audio.service-aidl.mediatek': blob_fixup()
         .replace_needed('libaudio_aidl_conversion_common_ndk.so', 'libaudio_aidl_conversion_common_ndk_prebuilt.so'),
     'vendor/lib64/hw/android.hardware.audio.effect.aidl-impl-mediatek.so': blob_fixup()
-        .replace_needed('libtinyxml2.so', 'libtinyxml2-v36.so'),
+        .replace_needed('libtinyxml2.so', 'libtinyxml2-v36.so')
+        .replace_needed('libaudio_aidl_conversion_common_ndk.so', 'libaudio_aidl_conversion_common_ndk_prebuilt.so'),
     'vendor/lib64/hw/mt6855/libpvr_mapper_utils.so': blob_fixup()
         .clear_symbol_version('AHardwareBuffer_describe')
         .clear_symbol_version('AHardwareBuffer_getNativeHandle')
@@ -200,14 +201,27 @@ blob_fixups: blob_fixups_user_type = {
     'vendor/lib64/libssl-v36.so': blob_fixup()
         .replace_needed('libcrypto.so', 'libcrypto-v36.so'),
     'vendor/lib64/android.hardware.audio.core-impl-mediatek.so': blob_fixup()
-        .add_needed('libaudioutils-v36.so'),
-     (
+        .add_needed('libaudioutils-v36.so')
+        .replace_needed('libaudio_aidl_conversion_common_ndk.so', 'libaudio_aidl_conversion_common_ndk_prebuilt.so'),
+    (
         'vendor/lib64/libcodec2_mtk_venc.so',
         'vendor/lib64/libcodec2_mtk_vdec.so',
-     ): blob_fixup()
+    ): blob_fixup()
         .replace_needed('libformatter.so', 'libformatter_mtk.so'),
     'vendor/bin/mnld': blob_fixup()
         .replace_needed('libmnl.so', 'libmnl_mtk.so'),
+    (
+        'vendor/lib64/hw/android.hardware.soundtrigger3-impl.so',
+        'vendor/lib64/soundfx/libaecsw_mtk.so',
+        'vendor/lib64/soundfx/libagc1sw_mtk.so',
+        'vendor/lib64/soundfx/libagc2sw_mtk.so',
+        'vendor/lib64/soundfx/libdlbvolaidl.so',
+        'vendor/lib64/soundfx/libnssw_mtk.so',
+        'vendor/lib64/soundfx/libpreprocessingaidl_mtk.so',
+        'vendor/lib64/soundfx/libswdapaidl.so',
+        'vendor/lib64/soundfx/libswgamedapaidl.so',
+    ): blob_fixup()
+        .replace_needed('libaudio_aidl_conversion_common_ndk.so', 'libaudio_aidl_conversion_common_ndk_prebuilt.so'),
 }  # fmt: skip
 
 module = ExtractUtilsModule(
