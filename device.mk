@@ -382,6 +382,13 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     ApertureOverlay
 
+# Touch
+# Ship FocalTech FT3519T firmware directly into the recovery ramdisk so
+# fts_touch_i2c can call request_firmware() without /vendor being mounted.
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/firmware/focaltech_ts_fw_samsung_ft3519t.bin:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/firmware/focaltech_ts_fw_samsung_ft3519t.bin \
+    $(DEVICE_PATH)/firmware/Conf_MultipleTest_ft3519t.ini:$(TARGET_COPY_OUT_RECOVERY)/root/vendor/firmware/Conf_MultipleTest_ft3519t.ini
+
 # Properties
 include $(LOCAL_PATH)/vendor_logtag.mk
 
