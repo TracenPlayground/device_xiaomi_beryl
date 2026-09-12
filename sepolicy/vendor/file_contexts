@@ -1,5 +1,6 @@
 # Audio
 /dev/socket/audio_hw_socket                                                                            u:object_r:audio_socket:s0
+/dev/sipa_tool                                                                                         u:object_r:audio_device:s0
 
 # Batterysecret
 /(vendor|system/vendor)/bin/batterysecret                                                              u:object_r:vendor_batterysecret_exec:s0

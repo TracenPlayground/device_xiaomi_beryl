@@ -8,6 +8,12 @@ allow hal_power_default sysfs_gpu:file rw_file_perms;
 allow hal_power_default sysfs_ged:dir search;
 allow hal_power_default sysfs_ged:file rw_file_perms;
 
+# Battery / Power Supply
+r_dir_file(hal_power_default, sysfs_batteryinfo)
+allow hal_power_default sysfs_batteryinfo:file rw_file_perms;
+r_dir_file(hal_power_default, sysfs_power_supply)
+allow hal_power_default sysfs_power_supply:file rw_file_perms;
+
 # Touchfeature (xiaomi-touch)
 allow hal_power_default touchfeature_device:chr_file rw_file_perms;
 
