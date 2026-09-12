@@ -336,14 +336,14 @@
             "Type": "SKIN",
             "HotThreshold": [
                 "NaN",
-                43.0,
                 45.0,
-                50.0,
+                48.0,
+                55.0,
                 70.0,
                 80.0,
                 90.0
             ],
-            "VrThreshold": "50.0",
+            "VrThreshold": "55.0",
             "Multiplier": 0.001,
             "Monitor": true
         },
@@ -469,50 +469,5 @@
             "Multiplier": 0.001
         }
     ],
-    "CoolingDevices": [
-        {
-            "Name": "cpufreq-cpu0",
-            "Type": "CPU"
-        },
-        {
-            "Name": "cpufreq-cpu6",
-            "Type": "CPU"
-        },
-        {
-            "Name": "brightness0-clone",
-            "Type": "DISPLAY"
-        },
-        {
-            "Name": "flashlight_cooler",
-            "Type": "CAMERA"
-        },
-        {
-            "Name": "charger-cooler",
-            "Type": "BATTERY"
-        },
-        {
-            "Name": "lcd-backlight",
-            "Type": "DISPLAY"
-        },
-        {
-            "Name": "mutt-pa1",
-            "Type": "MODEM"
-        },
-        {
-            "Name": "tx-pwr-pa1",
-            "Type": "MODEM"
-        },
-        {
-            "Name": "mutt-pa2",
-            "Type": "MODEM"
-        },
-        {
-            "Name": "tx-pwr-pa2",
-            "Type": "MODEM"
-        },
-        {
-            "Name": "scg-off-pa2",
-            "Type": "MODEM"
-        }
-    ]
+    "CoolingDevices": []
 }
