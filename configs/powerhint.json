@@ -381,22 +381,6 @@
         "0-6"
       ],
       "ResetOnInit": true
-    },
-    {
-      "Name": "FastCharge",
-      "Paths": [
-        "/sys/class/power_supply/battery/charge_control_limit"
-      ],
-      "Values": [
-        "0",
-        "2"
-      ],
-      "ResetOnInit": true,
-      "DefaultIndex": 0,
-      "Comments": [
-        "0 = no limit (full fast charging, below 75\u00b0C battery temp)",
-        "2 = throttled slow charging (above 75\u00b0C battery temp / thermal protection)"
-      ]
     }
   ],
   "Actions": [
