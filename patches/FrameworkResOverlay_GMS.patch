@@ -1,0 +1,34 @@
+diff --git a/common/proprietary/product/overlay/FrameworkResOverlay_GMS/res/values/config.xml b/common/proprietary/product/overlay/FrameworkResOverlay_GMS/res/values/config.xml
+index 72f5eae..9c9df0f 100644
+--- a/common/proprietary/product/overlay/FrameworkResOverlay_GMS/res/values/config.xml
++++ b/common/proprietary/product/overlay/FrameworkResOverlay_GMS/res/values/config.xml
+@@ -19,28 +19,6 @@
+     <string name="config_deviceProvisioningPackage">com.google.android.apps.work.oobconfig</string>
+ 
+     <!-- The list of packages that will use ANGLE as the GLES driver -->
+-    <string-array name="config_angleAllowList">
+-        <item>com.dreamgames.royalmatch</item>
+-        <item>com.dts.freefiremax</item>
+-        <item>com.dxx.firenow</item>
+-        <item>com.gramgames.mergedragons</item>
+-        <item>com.ludo.king</item>
+-        <item>com.mojang.minecraftpe</item>
+-        <item>com.my.defense</item>
+-        <item>com.nintendo.zaka</item>
+-        <item>com.os.airforce</item>
+-        <item>com.playrix.fishdomdd.gplay</item>
+-        <item>io.teslatech.callbreak</item>
+-        <item>jp.konami.prospia</item>
+-        <item>net.peakgames.toonblast</item>
+-        <item>com.yottagames.gameofmafia</item>
+-        <item>com.Sunborn.SnqxExilium.Glo</item>
+-        <item>com.haoplay.game.and.exilium</item>
+-        <item>com.rockstargames.gtasa</item>
+-        <item>com.h73.jhqyna</item>
+-        <item>com.sega.CrazyTaxiplayhaven</item>
+-        <item>en.haoplay.and.rm</item>
+-        <item>com.netease.g108na</item>
+-    </string-array>
++    <string-array name="config_angleAllowList" />
+ 
+ </resources>
