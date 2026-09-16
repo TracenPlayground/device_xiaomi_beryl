@@ -310,6 +310,16 @@ ro.surface_flinger.has_HDR_display=true
 ro.surface_flinger.protected_contents=true
 ro.surface_flinger.use_color_management=true
 ro.surface_flinger.wcg_composition_dataspace=143261696
+ro.surface_flinger.set_touch_timer_ms=1100
+ro.surface_flinger.set_idle_timer_ms=1100
+
+# MTK Display Idle FPS
+ro.vendor.display.idle_default_fps=60
+ro.vendor.display.idle_default_fps.support=true
+ro.vendor.display.tp_idle_fps=60
+ro.vendor.display.touch.idle.enable=true
+ro.vendor.idle_fps=60
+ro.vendor.display.default_fps=60
 
 # Storage
 external_storage.casefold.enabled=1
