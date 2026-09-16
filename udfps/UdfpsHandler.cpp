@@ -13,6 +13,7 @@
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <fstream>
+#include <mutex>
 #include <thread>
 
 #include "UdfpsHandler.h"
@@ -117,7 +118,7 @@ touch_base touchDataPrimary = {
 
 class XiaomiBerylUdfpsHandler : public UdfpsHandler {
   public:
-    void init(fingerprint_device_t* device) {
+    void init(fingerprint_device_t* device) override {
         mDevice = device;
         disp_fd_ = android::base::unique_fd(open(DISP_FEATURE_PATH, O_RDWR));
         touch_fd_ = android::base::unique_fd(open(TOUCH_DEV_PATH, O_RDWR));
@@ -165,20 +166,27 @@ class XiaomiBerylUdfpsHandler : public UdfpsHandler {
 
                 bool localHbmUiReady = value & LOCAL_HBM_UI_READY;
 
-                mDevice->extCmd(mDevice, COMMAND_NIT,
-                                localHbmUiReady ? PARAM_NIT_FOD : PARAM_NIT_NONE);
+                std::lock_guard<std::mutex> lock(mLock);
+                if (mDevice) {
+                    mDevice->extCmd(mDevice, COMMAND_NIT,
+                                    localHbmUiReady ? PARAM_NIT_FOD : PARAM_NIT_NONE);
+                }
             }
         }).detach();
     }
 
-    void onFingerDown(uint32_t /*x*/, uint32_t /*y*/, float /*minor*/, float /*major*/) {
+    void onFingerDown(uint32_t /*x*/, uint32_t /*y*/, float /*minor*/, float /*major*/) override {
+        std::lock_guard<std::mutex> lock(mLock);
         if (mAuthSuccess) return;
-        setFingerDown(true);
+        setFingerDownLocked(true);
     }
 
-    void onFingerUp() { setFingerDown(false); }
+    void onFingerUp() override {
+        std::lock_guard<std::mutex> lock(mLock);
+        setFingerDownLocked(false);
+    }
 
-    void onAcquired(int32_t result, int32_t vendorCode) {
+    void onAcquired(int32_t result, int32_t vendorCode) override {
         LOG(DEBUG) << __func__ << " result: " << result << " vendorCode: " << vendorCode;
         switch (static_cast<AcquiredInfo>(result)) {
             case AcquiredInfo::GOOD:
@@ -191,34 +199,52 @@ class XiaomiBerylUdfpsHandler : public UdfpsHandler {
             case AcquiredInfo::TOO_BRIGHT:
             case AcquiredInfo::IMMOBILE:
             case AcquiredInfo::LIFT_TOO_SOON:
-		onFingerUp();
+                onFingerUp();
                 break;
             default:
                 break;
         }
         if (vendorCode == 21) {
-            setFodStatus(FOD_STATUS_ON);
+            std::lock_guard<std::mutex> lock(mLock);
+            setFodStatusLocked(FOD_STATUS_ON);
         }
     }
 
-    void onAuthenticationFailed() { onFingerUp(); }
+    void onAuthenticationFailed() override {
+        std::lock_guard<std::mutex> lock(mLock);
+        setFingerDownLocked(false);
+        setFodStatusLocked(FOD_STATUS_OFF);
+    }
 
-    void onAuthenticationSucceeded() {
-        mAuthSuccess = true;
-        onFingerUp();
+    void onAuthenticationSucceeded() override {
+        {
+            std::lock_guard<std::mutex> lock(mLock);
+            mAuthSuccess = true;
+            setFingerDownLocked(false);
+            setFodStatusLocked(FOD_STATUS_OFF);
+        }
         std::thread([this]() {
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::lock_guard<std::mutex> lock(mLock);
             mAuthSuccess = false;
         }).detach();
     }
 
+    void cancel() override {
+        std::lock_guard<std::mutex> lock(mLock);
+        setFingerDownLocked(false);
+        setFodStatusLocked(FOD_STATUS_OFF);
+    }
+
   private:
-    fingerprint_device_t* mDevice;
+    std::mutex mLock;
+    fingerprint_device_t* mDevice = nullptr;
     android::base::unique_fd disp_fd_;
     android::base::unique_fd touch_fd_;
     bool mAuthSuccess = false;
 
-    void setFodStatus(int value) {
+    void setFodStatusLocked(int value) {
+        if (touch_fd_ < 0) return;
         ioctl(touch_fd_.get(), TOUCH_IOC_SELECT_TOUCH_ID, MI_DISP_PRIMARY);
         touch_base data = {
             .mode = Touch_Fod_Enable,
@@ -227,8 +253,12 @@ class XiaomiBerylUdfpsHandler : public UdfpsHandler {
         ioctl(touch_fd_.get(), TOUCH_IOC_COMMON_DATA, &data);
         set(FOD_STATUS_PATH, value);
     }
-    void setFingerDown(bool pressed) {
-        mDevice->extCmd(mDevice, COMMAND_FOD_PRESS_STATUS, pressed ? PARAM_FOD_PRESSED : PARAM_FOD_RELEASED);
+
+    void setFingerDownLocked(bool pressed) {
+        if (mDevice) {
+            mDevice->extCmd(mDevice, COMMAND_FOD_PRESS_STATUS, pressed ? PARAM_FOD_PRESSED : PARAM_FOD_RELEASED);
+        }
+        if (disp_fd_ < 0) return;
         disp_local_hbm_req req;
         req.base.flag = 0;
         req.base.disp_id = MI_DISP_PRIMARY;
