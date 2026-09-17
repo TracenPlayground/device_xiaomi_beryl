@@ -3,3 +3,6 @@ type hal_dms_aidl_service, hal_service_type, service_manager_type;
 
 # Fingerprint
 type vendor_hal_fingerprint_service_xiaomi, service_manager_type;
+
+# TouchFeature
+type hal_touchfeature_xiaomi_service, protected_service, hal_service_type, service_manager_type;
