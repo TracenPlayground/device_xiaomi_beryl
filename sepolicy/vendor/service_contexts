@@ -3,3 +3,6 @@ vendor.dolby.dms.IDms/default                                             u:obje
 
 # Fingerprint
 vendor.xiaomi.hardware.fx.tunnel.IMiFxTunnel/default                    u:object_r:vendor_hal_fingerprint_service_xiaomi:s0
+
+# TouchFeature
+vendor.xiaomi.hw.touchfeature.ITouchFeature/default                     u:object_r:hal_touchfeature_xiaomi_service:s0
