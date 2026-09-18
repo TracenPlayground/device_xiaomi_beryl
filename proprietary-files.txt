@@ -2309,6 +2309,8 @@ vendor/lib64/vendor.xiaomi.hardware.mfidoca-V1-ndk.so
 vendor/bin/hw/vendor.dolby.dms.service
 vendor/bin/hw/vendor.dolby.media.c2-default-service-dax
 vendor/etc/init/dms-service.rc
+vendor/etc/dolby/dax-default.xml
+vendor/etc/dolby/dax-default-spatializer.xml
 vendor/etc/init/vendor.dolby.media.c2-default-service-dax.rc
 vendor/etc/media_codecs_dolby_audio.xml
 vendor/etc/media_codecs_system_default.xml
