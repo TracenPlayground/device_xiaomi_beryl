@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2023-24 Paranoid Android
+ * Copyright (C) 2023-2024 Paranoid Android
+ * Copyright (C) 2024-2026 Halcyon Project
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -8,24 +9,42 @@ package co.aospa.dolby.xiaomi
 
 import android.media.audiofx.AudioEffect
 import co.aospa.dolby.xiaomi.DolbyConstants.Companion.dlog
+import co.aospa.dolby.xiaomi.DolbyConstants.Companion.elog
 import co.aospa.dolby.xiaomi.DolbyConstants.DsParam
 import java.util.UUID
 
-class DolbyAudioEffect(priority: Int, audioSession: Int) : AudioEffect(
-    EFFECT_TYPE_NULL, EFFECT_TYPE_DAP, priority, audioSession
-) {
+class DolbyAudioEffect(priority: Int, audioSession: Int) :
+    AudioEffect(EFFECT_TYPE_NULL, findDapEffectUuid(), priority, audioSession) {
 
     var dsOn: Boolean
-        get() = getIntParam(EFFECT_PARAM_ENABLE) == 1
+        get() = try {
+            getIntParam(EFFECT_PARAM_ENABLE) == 1
+        } catch (e: Exception) {
+            dlog(TAG, "Error getting dsOn: ${e.message}")
+            false
+        }
         set(value) {
-            setIntParam(EFFECT_PARAM_ENABLE, if (value) 1 else 0)
-            enabled = value
+            try {
+                setIntParam(EFFECT_PARAM_ENABLE, if (value) 1 else 0)
+                checkStatus(setEnabled(value))
+            } catch (e: Exception) {
+                elog(TAG, "Error setting dsOn: ${e.message}", e)
+            }
         }
 
     var profile: Int
-        get() = getIntParam(EFFECT_PARAM_PROFILE)
+        get() = try {
+            getIntParam(EFFECT_PARAM_PROFILE)
+        } catch (e: Exception) {
+            dlog(TAG, "Error getting profile: ${e.message}")
+            0
+        }
         set(value) {
-            setIntParam(EFFECT_PARAM_PROFILE, value)
+            try {
+                setIntParam(EFFECT_PARAM_PROFILE, value)
+            } catch (e: Exception) {
+                elog(TAG, "Error setting profile: ${e.message}", e)
+            }
         }
 
     private fun setIntParam(param: Int, value: Int) {
@@ -41,14 +60,16 @@ class DolbyAudioEffect(priority: Int, audioSession: Int) : AudioEffect(
         val buf = ByteArray(12)
         int32ToByteArray(param, buf, 0)
         checkStatus(getParameter(EFFECT_PARAM_CPDP_VALUES + param, buf))
-        return byteArrayToInt32(buf).also {
-            dlog(TAG, "getIntParam($param): $it")
-        }
+        return byteArrayToInt32(buf).also { dlog(TAG, "getIntParam($param): $it") }
     }
 
     fun resetProfileSpecificSettings(profile: Int = this.profile) {
         dlog(TAG, "resetProfileSpecificSettings: profile=$profile")
-        setIntParam(EFFECT_PARAM_RESET_PROFILE_SETTINGS, profile)
+        try {
+            setIntParam(EFFECT_PARAM_RESET_PROFILE_SETTINGS, profile)
+        } catch (e: Exception) {
+            elog(TAG, "Error resetting profile settings: ${e.message}", e)
+        }
     }
 
     fun setDapParameter(param: DsParam, values: IntArray, profile: Int = this.profile) {
@@ -79,15 +100,25 @@ class DolbyAudioEffect(priority: Int, audioSession: Int) : AudioEffect(
     }
 
     fun getDapParameterBool(param: DsParam, profile: Int = this.profile): Boolean =
-        getDapParameter(param, profile)[0] == 1
+        try {
+            getDapParameter(param, profile)[0] == 1
+        } catch (e: Exception) {
+            dlog(TAG, "Error getting bool param $param: ${e.message}")
+            false
+        }
 
     fun getDapParameterInt(param: DsParam, profile: Int = this.profile): Int =
-        getDapParameter(param, profile)[0]
+        try {
+            getDapParameter(param, profile)[0]
+        } catch (e: Exception) {
+            dlog(TAG, "Error getting int param $param: ${e.message}")
+            0
+        }
 
     companion object {
         private const val TAG = "DolbyAudioEffect"
-        private val EFFECT_TYPE_DAP =
-            UUID.fromString("9d4921da-8225-4f29-aefa-39537a04bcaa")
+        val EFFECT_TYPE_DAP: UUID = UUID.fromString("9d4921da-8225-4f29-aefa-39537a04bcaa")
+        val EFFECT_TYPE_DOLBY: UUID = UUID.fromString("fa81dbde-588b-11ed-9b6a-0242ac120002")
 
         private const val EFFECT_PARAM_ENABLE = 0
         private const val EFFECT_PARAM_CPDP_VALUES = 5
@@ -95,6 +126,28 @@ class DolbyAudioEffect(priority: Int, audioSession: Int) : AudioEffect(
         private const val EFFECT_PARAM_SET_PROFILE_PARAMETER = 0x1000000
         private const val EFFECT_PARAM_GET_PROFILE_PARAMETER = 0x1000005
         private const val EFFECT_PARAM_RESET_PROFILE_SETTINGS = 0xC000000
+
+        private fun findDapEffectUuid(): UUID {
+            try {
+                val descriptors = queryEffects() ?: emptyArray()
+                val known = descriptors.firstOrNull { it.uuid == EFFECT_TYPE_DAP }
+                if (known != null) return known.uuid
+
+                val byType = descriptors.firstOrNull {
+                    it.type == EFFECT_TYPE_DOLBY && it.name.contains("dap", ignoreCase = true)
+                }
+                if (byType != null) return byType.uuid
+
+                val matched = descriptors.firstOrNull {
+                    it.name.contains("dap", ignoreCase = true) ||
+                        it.implementor.contains("Dolby", ignoreCase = true)
+                }
+                if (matched != null) return matched.uuid
+            } catch (e: Exception) {
+                elog(TAG, "Error querying audio effects: ${e.message}", e)
+            }
+            return EFFECT_TYPE_DAP
+        }
 
         private fun int32ToByteArray(value: Int, dst: ByteArray, index: Int) {
             var idx = index
@@ -106,9 +159,9 @@ class DolbyAudioEffect(priority: Int, audioSession: Int) : AudioEffect(
 
         private fun byteArrayToInt32(ba: ByteArray): Int {
             return ((ba[3].toInt() and 0xff) shl 24) or
-                    ((ba[2].toInt() and 0xff) shl 16) or
-                    ((ba[1].toInt() and 0xff) shl 8) or
-                    (ba[0].toInt() and 0xff)
+                ((ba[2].toInt() and 0xff) shl 16) or
+                ((ba[1].toInt() and 0xff) shl 8) or
+                (ba[0].toInt() and 0xff)
         }
 
         private fun int32ArrayToByteArray(src: IntArray, dst: ByteArray, index: Int) {
@@ -125,7 +178,8 @@ class DolbyAudioEffect(priority: Int, audioSession: Int) : AudioEffect(
             val srcLength = ba.size shr 2
             val dst = IntArray(dstLength.coerceAtMost(srcLength))
             for (i in dst.indices) {
-                dst[i] = ((ba[i * 4 + 3].toInt() and 0xff) shl 24) or
+                dst[i] =
+                    ((ba[i * 4 + 3].toInt() and 0xff) shl 24) or
                         ((ba[i * 4 + 2].toInt() and 0xff) shl 16) or
                         ((ba[i * 4 + 1].toInt() and 0xff) shl 8) or
                         (ba[i * 4].toInt() and 0xff)

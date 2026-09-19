@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     Copyright (C) 2023-24 Paranoid Android
+     Copyright (C) 2023-2024 Paranoid Android
+     Copyright (C) 2024-2026 Halcyon Project
      SPDX-License-Identifier: Apache-2.0
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="co.aospa.dolby.xiaomi"
     android:sharedUserId="android.uid.system">
 
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
@@ -75,4 +78,3 @@
 
     </application>
 </manifest>
-
