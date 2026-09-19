@@ -41,17 +41,6 @@ class DolbyConstants {
         const val PREF_SPK_VIRTUALIZER = "dolby_spk_virtualizer"
         const val PREF_RESET = "dolby_reset"
 
-        val PROFILE_SPECIFIC_PREFS = setOf(
-            PREF_PRESET,
-            PREF_IEQ,
-            PREF_HP_VIRTUALIZER,
-            PREF_SPK_VIRTUALIZER,
-            PREF_STEREO,
-            PREF_DIALOGUE,
-            PREF_BASS,
-            PREF_VOLUME,
-        )
-
         fun dlog(tag: String, msg: String) {
             if (DEBUG) Log.d(tag, msg)
         }
