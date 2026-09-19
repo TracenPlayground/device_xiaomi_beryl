@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2023-24 Paranoid Android
+ * Copyright (C) 2023-2024 Paranoid Android
+ * Copyright (C) 2024-2026 Halcyon Project
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -10,309 +11,325 @@ import android.content.Context
 import android.media.AudioDeviceCallback
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
-import android.media.AudioManager.AudioPlaybackCallback
 import android.media.AudioPlaybackConfiguration
+import android.media.AudioRecordingConfiguration
 import android.os.Handler
-import android.util.Log
-import androidx.preference.PreferenceManager
+import android.os.Looper
 import co.aospa.dolby.xiaomi.DolbyConstants.Companion.dlog
+import co.aospa.dolby.xiaomi.DolbyConstants.Companion.elog
+import co.aospa.dolby.xiaomi.DolbyConstants.Companion.wlog
 import co.aospa.dolby.xiaomi.DolbyConstants.DsParam
-import co.aospa.dolby.xiaomi.R
+import co.aospa.dolby.xiaomi.data.ProfileRepository
+import co.aospa.dolby.xiaomi.geq.data.EqualizerRepository
+import co.aospa.dolby.xiaomi.preference.DolbyPreferenceStore
 
-internal class DolbyController private constructor(
-    private val context: Context
-) {
-    private var dolbyEffect = DolbyAudioEffect(EFFECT_PRIORITY, audioSession = 0)
-    private val audioManager = context.getSystemService(AudioManager::class.java)
-    private val handler = Handler(context.mainLooper)
+class DolbyController private constructor(private val context: Context) {
 
-    // Restore current profile on every media session
-    private val playbackCallback = object : AudioPlaybackCallback() {
+    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private val preferenceStore = DolbyPreferenceStore(context)
+    private val profileRepository by lazy { ProfileRepository.getInstance(context) }
+    private var dolbyAudioEffect: DolbyAudioEffect? = null
+    private val handler = Handler(Looper.getMainLooper())
+
+    private val current10BandGains = IntArray(10)
+    private val current20BandGains = IntArray(20)
+
+    val currentBaseProfileId: Int
+        get() = profileRepository.getProfile(preferenceStore.profile)?.baseProfileId ?: preferenceStore.profile
+
+    private val recordingCallback = object : AudioManager.AudioRecordingCallback() {
+        override fun onRecordingConfigChanged(configs: List<AudioRecordingConfiguration>) {
+            updateVirtualizerForRecording(configs.isNotEmpty())
+        }
+    }
+
+    private val playbackCallback = object : AudioManager.AudioPlaybackCallback() {
         override fun onPlaybackConfigChanged(configs: List<AudioPlaybackConfiguration>) {
-            val isPlaying = configs.any {
-                it.playerState == AudioPlaybackConfiguration.PLAYER_STATE_STARTED
+            val isPlaying = configs.any { it.playerState == AudioPlaybackConfiguration.PLAYER_STATE_STARTED }
+            if (isPlaying && (dolbyAudioEffect == null || !dolbyAudioEffect!!.hasControl())) {
+                dlog(TAG, "Playback active and effect needs control, restoring settings")
+                restoreSettings()
             }
-            dlog(TAG, "onPlaybackConfigChanged: isPlaying=$isPlaying")
-            if (isPlaying)
-                setCurrentProfile()
         }
     }
 
-    // Restore current profile on audio device change
-    private val audioDeviceCallback = object : AudioDeviceCallback() {
-        override fun onAudioDevicesAdded(addedDevices: Array<AudioDeviceInfo>) {
-            dlog(TAG, "onAudioDevicesAdded")
-            setCurrentProfile()
+    private val deviceCallback = object : AudioDeviceCallback() {
+        override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>?) {
+            checkEffect()
         }
 
-        override fun onAudioDevicesRemoved(removedDevices: Array<AudioDeviceInfo>) {
-            dlog(TAG, "onAudioDevicesRemoved")
-            setCurrentProfile()
+        override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>?) {
+            checkEffect()
         }
     }
-
-    private var registerCallbacks = false
-        set(value) {
-            if (field == value) return
-            field = value
-            dlog(TAG, "setRegisterCallbacks($value)")
-            if (value) {
-                audioManager!!.registerAudioPlaybackCallback(playbackCallback, handler)
-                audioManager.registerAudioDeviceCallback(audioDeviceCallback, handler)
-            } else {
-                audioManager!!.unregisterAudioPlaybackCallback(playbackCallback)
-                audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
-            }
-        }
-
-    var dsOn: Boolean
-        get() =
-            dolbyEffect.dsOn.also {
-                dlog(TAG, "getDsOn: $it")
-            }
-        set(value) {
-            dlog(TAG, "setDsOn: $value")
-            checkEffect()
-            dolbyEffect.dsOn = value
-            registerCallbacks = value
-            if (value)
-                setCurrentProfile()
-        }
-
-    var profile: Int
-        get() =
-            dolbyEffect.profile.also {
-                dlog(TAG, "getProfile: $it")
-            }
-        set(value) {
-            dlog(TAG, "setProfile: $value")
-            checkEffect()
-            dolbyEffect.profile = value
-        }
 
     init {
-        dlog(TAG, "initialized")
+        initEffect()
+        audioManager.registerAudioRecordingCallback(recordingCallback, handler)
+        audioManager.registerAudioPlaybackCallback(playbackCallback, handler)
+        audioManager.registerAudioDeviceCallback(deviceCallback, handler)
+    }
+
+    private fun initEffect() {
+        try {
+            dolbyAudioEffect?.release()
+        } catch (e: Exception) {
+            // Ignore release error
+        }
+        try {
+            dolbyAudioEffect = DolbyAudioEffect(EFFECT_PRIORITY, AUDIO_SESSION_GLOBAL)
+            dlog(TAG, "DolbyAudioEffect initialized successfully")
+        } catch (e: Exception) {
+            elog(TAG, "Failed to initialize DolbyAudioEffect: ${e.message}", e)
+            dolbyAudioEffect = null
+        }
+    }
+
+    private fun checkEffect(): Boolean {
+        if (dolbyAudioEffect == null || !dolbyAudioEffect!!.hasControl()) {
+            dlog(TAG, "DolbyAudioEffect null or lost control, reinitializing...")
+            initEffect()
+        }
+        return dolbyAudioEffect != null
+    }
+
+    private fun <T> checkEffectAndRun(block: () -> T): T? {
+        if (!checkEffect()) {
+            wlog(TAG, "checkEffectAndRun: DolbyAudioEffect unavailable")
+            return null
+        }
+        return try {
+            block()
+        } catch (e: Exception) {
+            elog(TAG, "Error executing effect operation: ${e.message}", e)
+            null
+        }
     }
 
     fun onBootCompleted() {
         dlog(TAG, "onBootCompleted")
+        restoreSettings()
+    }
 
-        // Restore our main settings
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+    fun restoreSettings() {
+        if (!checkEffect()) return
+        val currentProfile = preferenceStore.profile
+        val baseId = currentBaseProfileId
+        dolbyAudioEffect?.profile = baseId
+        dolbyAudioEffect?.dsOn = preferenceStore.dsOn
 
-        // Don't enable Dolby at boot anymore.
-        // dsOn = prefs.getBoolean(DolbyConstants.PREF_ENABLE, true)
+        val deAmount = preferenceStore.dialogueEnhancerAmount
+        dolbyAudioEffect?.setDapParameter(DsParam.IEQ_PRESET, preferenceStore.ieqPreset, baseId)
+        dolbyAudioEffect?.setDapParameter(DsParam.DIALOGUE_ENHANCER_AMOUNT, deAmount, baseId)
+        dolbyAudioEffect?.setDapParameter(DsParam.DIALOGUE_ENHANCER_ENABLE, deAmount > 0, baseId)
+        dolbyAudioEffect?.setDapParameter(DsParam.BASS_ENHANCER_ENABLE, preferenceStore.bassEnhancerEnabled, baseId)
+        dolbyAudioEffect?.setDapParameter(DsParam.STEREO_WIDENING_AMOUNT, preferenceStore.stereoWideningAmount, baseId)
+        dolbyAudioEffect?.setDapParameter(DsParam.VOLUME_LEVELER_ENABLE, preferenceStore.volumeLevelerEnabled, baseId)
+        dolbyAudioEffect?.setDapParameter(DsParam.HEADPHONE_VIRTUALIZER, preferenceStore.headphoneVirtEnabled, baseId)
+        dolbyAudioEffect?.setDapParameter(DsParam.SPEAKER_VIRTUALIZER, preferenceStore.speakerVirtEnabled, baseId)
 
-        context.resources.getStringArray(R.array.dolby_profile_values)
-            .map { it.toInt() }
-            .forEach { profile ->
-                // Reset dolby first to prevent it from loading bad settings
-                dolbyEffect.resetProfileSpecificSettings(profile)
-                // Now restore our profile-specific settings
-                restoreSettings(profile)
+        restoreGeqGains()
+    }
+
+    private fun updateVirtualizerForRecording(isRecording: Boolean) {
+        checkEffectAndRun {
+            if (isRecording) {
+                dolbyAudioEffect?.setDapParameter(DsParam.HEADPHONE_VIRTUALIZER, false, currentBaseProfileId)
+                dolbyAudioEffect?.setDapParameter(DsParam.SPEAKER_VIRTUALIZER, false, currentBaseProfileId)
+            } else {
+                dolbyAudioEffect?.setDapParameter(
+                    DsParam.HEADPHONE_VIRTUALIZER,
+                    preferenceStore.headphoneVirtEnabled,
+                    currentBaseProfileId
+                )
+                dolbyAudioEffect?.setDapParameter(
+                    DsParam.SPEAKER_VIRTUALIZER,
+                    preferenceStore.speakerVirtEnabled,
+                    currentBaseProfileId
+                )
             }
-
-        // Finally restore the current profile.
-        setCurrentProfile()
-    }
-
-    private fun restoreSettings(profile: Int) {
-        dlog(TAG, "restoreSettings(profile=$profile)")
-        val prefs = context.getSharedPreferences("profile_$profile", Context.MODE_PRIVATE)
-        setPreset(
-            prefs.getString(DolbyConstants.PREF_PRESET, getPreset(profile))!!,
-            profile
-        )
-        setIeqPreset(
-            prefs.getString(
-                DolbyConstants.PREF_IEQ,
-                getIeqPreset(profile).toString()
-            )!!.toInt(),
-            profile
-        )
-        setHeadphoneVirtEnabled(
-            prefs.getBoolean(DolbyConstants.PREF_HP_VIRTUALIZER, getHeadphoneVirtEnabled(profile)),
-            profile
-        )
-        setSpeakerVirtEnabled(
-            prefs.getBoolean(DolbyConstants.PREF_SPK_VIRTUALIZER, getSpeakerVirtEnabled(profile)),
-            profile
-        )
-        setStereoWideningAmount(
-            prefs.getString(
-                DolbyConstants.PREF_STEREO,
-                getStereoWideningAmount(profile).toString()
-            )!!.toInt(),
-            profile
-        )
-        setDialogueEnhancerAmount(
-            prefs.getString(
-                DolbyConstants.PREF_DIALOGUE,
-                getDialogueEnhancerAmount(profile).toString()
-            )!!.toInt(),
-            profile
-        )
-        setBassEnhancerEnabled(
-            prefs.getBoolean(DolbyConstants.PREF_BASS, getBassEnhancerEnabled(profile)),
-            profile
-        )
-        setVolumeLevelerEnabled(
-            prefs.getBoolean(DolbyConstants.PREF_VOLUME, getVolumeLevelerEnabled(profile)),
-            profile
-        )
-    }
-
-    private fun checkEffect() {
-        if (!dolbyEffect.hasControl()) {
-            Log.w(TAG, "lost control, recreating effect")
-            dolbyEffect.release()
-            dolbyEffect = DolbyAudioEffect(EFFECT_PRIORITY, audioSession = 0)
         }
     }
 
-    private fun setCurrentProfile() {
-        dlog(TAG, "setCurrentProfile")
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
-        profile = prefs.getString(DolbyConstants.PREF_PROFILE, "0" /*dynamic*/)!!.toInt()
-    }
+    var dsOn: Boolean
+        get() = dolbyAudioEffect?.dsOn ?: preferenceStore.dsOn
+        set(value) {
+            preferenceStore.dsOn = value
+            checkEffectAndRun {
+                dolbyAudioEffect?.dsOn = value
+            }
+        }
+
+    var profile: Int
+        get() = preferenceStore.profile
+        set(value) {
+            preferenceStore.profile = value
+            val baseId = currentBaseProfileId
+            checkEffectAndRun {
+                dolbyAudioEffect?.profile = baseId
+            }
+            restoreSettings()
+        }
+
+    var preset: Int
+        get() = preferenceStore.preset
+        set(value) {
+            preferenceStore.preset = value
+            restoreGeqGains()
+        }
 
     fun getProfileName(): String? {
-        val profile = dolbyEffect.profile.toString()
-        val profiles = context.resources.getStringArray(R.array.dolby_profile_values)
-        val profileIndex = profiles.indexOf(profile)
-        dlog(TAG, "getProfileName: profile=$profile index=$profileIndex")
-        return if (profileIndex == -1) null else context.resources.getStringArray(
-            R.array.dolby_profile_entries
-        )[profileIndex]
+        return profileRepository.getProfileName(profile)
     }
 
-    fun resetProfileSpecificSettings() {
-        dlog(TAG, "resetProfileSpecificSettings")
-        checkEffect()
-        dolbyEffect.resetProfileSpecificSettings()
-        context.deleteSharedPreferences("profile_$profile")
-    }
+    var ieqPreset: Int
+        get() = checkEffectAndRun { dolbyAudioEffect?.getDapParameterInt(DsParam.IEQ_PRESET, currentBaseProfileId) }
+            ?: preferenceStore.ieqPreset
+        set(value) {
+            preferenceStore.ieqPreset = value
+            checkEffectAndRun {
+                dolbyAudioEffect?.setDapParameter(DsParam.IEQ_PRESET, value, currentBaseProfileId)
+            }
+        }
 
-    fun getPreset(profile: Int = this.profile): String {
-        val gains = dolbyEffect.getDapParameter(DsParam.GEQ_BAND_GAINS, profile)
-        return gains.joinToString(separator = ",").also {
-            dlog(TAG, "getPreset: $it")
+    var dialogueEnhancerAmount: Int
+        get() = checkEffectAndRun {
+            dolbyAudioEffect?.getDapParameterInt(DsParam.DIALOGUE_ENHANCER_AMOUNT, currentBaseProfileId)
+        } ?: preferenceStore.dialogueEnhancerAmount
+        set(value) {
+            preferenceStore.dialogueEnhancerAmount = value
+            checkEffectAndRun {
+                dolbyAudioEffect?.setDapParameter(DsParam.DIALOGUE_ENHANCER_AMOUNT, value, currentBaseProfileId)
+                dolbyAudioEffect?.setDapParameter(DsParam.DIALOGUE_ENHANCER_ENABLE, value > 0, currentBaseProfileId)
+            }
+        }
+
+    var bassEnhancerEnabled: Boolean
+        get() = checkEffectAndRun {
+            dolbyAudioEffect?.getDapParameterBool(DsParam.BASS_ENHANCER_ENABLE, currentBaseProfileId)
+        } ?: preferenceStore.bassEnhancerEnabled
+        set(value) {
+            preferenceStore.bassEnhancerEnabled = value
+            checkEffectAndRun {
+                dolbyAudioEffect?.setDapParameter(DsParam.BASS_ENHANCER_ENABLE, value, currentBaseProfileId)
+            }
+        }
+
+    var stereoWideningAmount: Int
+        get() = checkEffectAndRun {
+            dolbyAudioEffect?.getDapParameterInt(DsParam.STEREO_WIDENING_AMOUNT, currentBaseProfileId)
+        } ?: preferenceStore.stereoWideningAmount
+        set(value) {
+            preferenceStore.stereoWideningAmount = value
+            checkEffectAndRun {
+                dolbyAudioEffect?.setDapParameter(DsParam.STEREO_WIDENING_AMOUNT, value, currentBaseProfileId)
+            }
+        }
+
+    var volumeLevelerEnabled: Boolean
+        get() = checkEffectAndRun {
+            dolbyAudioEffect?.getDapParameterBool(DsParam.VOLUME_LEVELER_ENABLE, currentBaseProfileId)
+        } ?: preferenceStore.volumeLevelerEnabled
+        set(value) {
+            preferenceStore.volumeLevelerEnabled = value
+            checkEffectAndRun {
+                dolbyAudioEffect?.setDapParameter(DsParam.VOLUME_LEVELER_ENABLE, value, currentBaseProfileId)
+            }
+        }
+
+    var headphoneVirtEnabled: Boolean
+        get() = checkEffectAndRun {
+            dolbyAudioEffect?.getDapParameterBool(DsParam.HEADPHONE_VIRTUALIZER, currentBaseProfileId)
+        } ?: preferenceStore.headphoneVirtEnabled
+        set(value) {
+            preferenceStore.headphoneVirtEnabled = value
+            checkEffectAndRun {
+                dolbyAudioEffect?.setDapParameter(DsParam.HEADPHONE_VIRTUALIZER, value, currentBaseProfileId)
+            }
+        }
+
+    var speakerVirtEnabled: Boolean
+        get() = checkEffectAndRun {
+            dolbyAudioEffect?.getDapParameterBool(DsParam.SPEAKER_VIRTUALIZER, currentBaseProfileId)
+        } ?: preferenceStore.speakerVirtEnabled
+        set(value) {
+            preferenceStore.speakerVirtEnabled = value
+            checkEffectAndRun {
+                dolbyAudioEffect?.setDapParameter(DsParam.SPEAKER_VIRTUALIZER, value, currentBaseProfileId)
+            }
+        }
+
+    fun setGeqBandGain(band: Int, gain: Int) {
+        if (band in 0..9) {
+            current10BandGains[band] = gain
+            syncGeqToDap()
         }
     }
 
-    fun setPreset(value: String, profile: Int = this.profile) {
-        dlog(TAG, "setPreset: $value")
-        checkEffect()
-        val gains = value.split(",")
-            .map { it.toInt() }
-            .toIntArray()
-        dolbyEffect.setDapParameter(DsParam.GEQ_BAND_GAINS, gains, profile)
+    fun getGeqBandGain(band: Int): Int {
+        return if (band in 0..9) current10BandGains[band] else 0
     }
 
-    fun getPresetName(): String {
-        val presets = context.resources.getStringArray(R.array.dolby_preset_values)
-        val presetIndex = presets.indexOf(getPreset())
-        return if (presetIndex == -1) {
-            "Custom"
-        } else {
-            context.resources.getStringArray(
-                R.array.dolby_preset_entries
-            )[presetIndex]
+    fun restoreGeqGains() {
+        try {
+            val equalizerRepo = EqualizerRepository.getInstance(context)
+            val gains = equalizerRepo.getPresetGains(preferenceStore.preset)
+            for (i in 0 until 10) {
+                current10BandGains[i] = gains.getOrNull(i)?.gain ?: 0
+            }
+            syncGeqToDap()
+        } catch (e: Exception) {
+            dlog(TAG, "Error restoring GEQ gains: ${e.message}")
         }
     }
 
-    fun getHeadphoneVirtEnabled(profile: Int = this.profile) =
-        dolbyEffect.getDapParameterBool(DsParam.HEADPHONE_VIRTUALIZER, profile).also {
-            dlog(TAG, "getHeadphoneVirtEnabled: $it")
+    private fun syncGeqToDap() {
+        for (i in 0 until 10) {
+            val scaled = current10BandGains[i] * 10
+            current20BandGains[2 * i] = scaled
+            current20BandGains[2 * i + 1] = scaled
         }
-
-    fun setHeadphoneVirtEnabled(value: Boolean, profile: Int = this.profile) {
-        dlog(TAG, "setHeadphoneVirtEnabled: $value")
-        checkEffect()
-        dolbyEffect.setDapParameter(DsParam.HEADPHONE_VIRTUALIZER, value, profile)
-    }
-
-    fun getSpeakerVirtEnabled(profile: Int = this.profile) =
-        dolbyEffect.getDapParameterBool(DsParam.SPEAKER_VIRTUALIZER, profile).also {
-            dlog(TAG, "getSpeakerVirtEnabled: $it")
+        checkEffectAndRun {
+            dolbyAudioEffect?.setDapParameter(DsParam.GEQ_BAND_GAINS, current20BandGains, currentBaseProfileId)
         }
-
-    fun setSpeakerVirtEnabled(value: Boolean, profile: Int = this.profile) {
-        dlog(TAG, "setSpeakerVirtEnabled: $value")
-        checkEffect()
-        dolbyEffect.setDapParameter(DsParam.SPEAKER_VIRTUALIZER, value, profile)
     }
 
-    fun getBassEnhancerEnabled(profile: Int = this.profile) =
-        dolbyEffect.getDapParameterBool(DsParam.BASS_ENHANCER_ENABLE, profile).also {
-            dlog(TAG, "getBassEnhancerEnabled: $it")
+    fun resetCurrentProfile() {
+        val prof = profile
+        preferenceStore.resetProfile(prof)
+        checkEffectAndRun {
+            dolbyAudioEffect?.resetProfileSpecificSettings(currentBaseProfileId)
         }
-
-    fun setBassEnhancerEnabled(value: Boolean, profile: Int = this.profile) {
-        dlog(TAG, "setBassEnhancerEnabled: $value")
-        checkEffect()
-        dolbyEffect.setDapParameter(DsParam.BASS_ENHANCER_ENABLE, value, profile)
+        restoreSettings()
     }
 
-    fun getVolumeLevelerEnabled(profile: Int = this.profile) =
-        dolbyEffect.getDapParameterBool(DsParam.VOLUME_LEVELER_ENABLE, profile).also {
-            dlog(TAG, "getVolumeLevelerEnabled: $it")
-        }
-
-    fun setVolumeLevelerEnabled(value: Boolean, profile: Int = this.profile) {
-        dlog(TAG, "setVolumeLevelerEnabled: $value")
-        checkEffect()
-        dolbyEffect.setDapParameter(DsParam.VOLUME_LEVELER_ENABLE, value, profile)
-    }
-
-    fun getStereoWideningAmount(profile: Int = this.profile) =
-        dolbyEffect.getDapParameterInt(DsParam.STEREO_WIDENING_AMOUNT, profile).also {
-            dlog(TAG, "getStereoWideningAmount: $it")
-        }
-
-    fun setStereoWideningAmount(value: Int, profile: Int = this.profile) {
-        dlog(TAG, "setStereoWideningAmount: $value")
-        checkEffect()
-        dolbyEffect.setDapParameter(DsParam.STEREO_WIDENING_AMOUNT, value, profile)
-    }
-
-    fun getDialogueEnhancerAmount(profile: Int = this.profile): Int {
-        val enabled = dolbyEffect.getDapParameterBool(DsParam.DIALOGUE_ENHANCER_ENABLE, profile)
-        val amount = if (enabled) {
-            dolbyEffect.getDapParameterInt(DsParam.DIALOGUE_ENHANCER_AMOUNT, profile)
-        } else 0
-        dlog(TAG, "getDialogueEnhancerAmount: enabled=$enabled amount=$amount")
-        return amount
-    }
-
-    fun setDialogueEnhancerAmount(value: Int, profile: Int = this.profile) {
-        dlog(TAG, "setDialogueEnhancerAmount: $value")
-        checkEffect()
-        dolbyEffect.setDapParameter(DsParam.DIALOGUE_ENHANCER_ENABLE, (value > 0), profile)
-        dolbyEffect.setDapParameter(DsParam.DIALOGUE_ENHANCER_AMOUNT, value, profile)
-    }
-
-    fun getIeqPreset(profile: Int = this.profile) =
-        dolbyEffect.getDapParameterInt(DsParam.IEQ_PRESET, profile).also {
-            dlog(TAG, "getIeqPreset: $it")
-        }
-
-    fun setIeqPreset(value: Int, profile: Int = this.profile) {
-        dlog(TAG, "setIeqPreset: $value")
-        checkEffect()
-        dolbyEffect.setDapParameter(DsParam.IEQ_PRESET, value, profile)
+    fun isOnSpeaker(): Boolean {
+        val devices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
+        return devices.any { it.type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER } &&
+                !devices.any {
+                    it.type == AudioDeviceInfo.TYPE_WIRED_HEADSET ||
+                    it.type == AudioDeviceInfo.TYPE_WIRED_HEADPHONES ||
+                    it.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP ||
+                    it.type == AudioDeviceInfo.TYPE_BLE_HEADSET ||
+                    it.type == AudioDeviceInfo.TYPE_BLE_SPEAKER ||
+                    it.type == AudioDeviceInfo.TYPE_HEARING_AID ||
+                    it.type == AudioDeviceInfo.TYPE_USB_HEADSET ||
+                    it.type == AudioDeviceInfo.TYPE_USB_DEVICE
+                }
     }
 
     companion object {
         private const val TAG = "DolbyController"
         private const val EFFECT_PRIORITY = 100
+        private const val AUDIO_SESSION_GLOBAL = 0
 
         @Volatile
         private var instance: DolbyController? = null
 
-        fun getInstance(context: Context) =
-            instance ?: synchronized(this) {
-                instance ?: DolbyController(context).also { instance = it }
+        fun getInstance(context: Context): DolbyController {
+            return instance ?: synchronized(this) {
+                instance ?: DolbyController(context.applicationContext).also { instance = it }
             }
+        }
     }
 }

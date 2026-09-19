@@ -1,6 +1,7 @@
 //
 // Copyright (C) 2017-2021 The LineageOS Project
-//           (C) 2023-24 Paranoid Android
+//           (C) 2023-2024 Paranoid Android
+//           (C) 2024-2026 Halcyon Project
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -20,6 +21,7 @@ android_app {
         "SettingsLib",
         "SpaLib",
         "androidx.activity_activity-compose",
+        "androidx.compose.animation_animation",
         "androidx.compose.material3_material3",
         "androidx.compose.runtime_runtime",
         "androidx.preference_preference",
