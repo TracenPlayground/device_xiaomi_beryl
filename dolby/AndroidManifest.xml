@@ -17,7 +17,12 @@
         android:allowBackup="false"
         android:label="@string/dolby_title"
         android:persistent="true"
+        android:enableOnBackInvokedCallback="true"
         android:theme="@style/Theme.SubSettingsBase.Expressive">
+
+        <property
+            android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED"
+            android:value="true" />
 
         <receiver
             android:name=".BootCompletedReceiver"
@@ -30,6 +35,11 @@
         <activity
             android:name=".DolbyActivity"
             android:label="@string/dolby_title"
+            android:icon="@drawable/ic_dolby"
+            android:taskAffinity="com.android.settings.root"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
+            android:windowSoftInputMode="adjustResize"
+            android:knownActivityEmbeddingCerts="@array/config_known_host_certs"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.android.settings.action.IA_SETTINGS" />
@@ -46,14 +56,28 @@
             </intent-filter>
             <meta-data android:name="com.android.settings.category"
                        android:value="com.android.settings.category.ia.sound" />
+            <meta-data android:name="com.android.settings.icon"
+                       android:resource="@drawable/ic_dolby" />
+            <meta-data android:name="com.android.settings.icon_tintable"
+                       android:value="true" />
+            <meta-data android:name="com.android.settings.order"
+                       android:value="-40" />
             <meta-data android:name="com.android.settings.summary_uri"
                        android:value="content://co.aospa.dolby.xiaomi.summary/dolby" />
+            <meta-data android:name="com.android.settings.HIGHLIGHT_MENU_KEY"
+                       android:value="top_level_sound" />
+            <meta-data android:name="com.android.settings.PRIMARY_PROFILE_CONTROLLED"
+                       android:value="true" />
         </activity>
 
         <activity
             android:name=".geq.EqualizerActivity"
             android:label="@string/dolby_preset"
-            android:exported="true" >
+            android:taskAffinity="com.android.settings.root"
+            android:configChanges="orientation|screenLayout|screenSize|smallestScreenSize"
+            android:windowSoftInputMode="adjustResize"
+            android:knownActivityEmbeddingCerts="@array/config_known_host_certs"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
