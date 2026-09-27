@@ -29,3 +29,8 @@ ro.vendor.lirc.dev    u:object_r:vendor_ir_prop:s0
 
 # Thermal
 vendor.sys.thermal.data.path             u:object_r:vendor_thermal_prop:s0
+
+# Touchfeature
+vendor.touchfeature.                     u:object_r:vendor_touchfeature_prop:s0
+ro.vendor.touchfeature.type              u:object_r:vendor_touchfeature_prop:s0
+persist.vendor.touchfeature.             u:object_r:vendor_touchfeature_prop:s0
