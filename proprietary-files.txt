@@ -2871,6 +2871,11 @@ vendor/etc/thermal/thermal_policy_02.conf
 vendor/etc/thermal/thermal_policy_08.conf
 vendor/etc/thermald-devices.conf
 
+# Touch
+vendor/bin/hw/vendor.xiaomi.hw.touchfeature-service
+vendor/etc/init/vendor.xiaomi.hw.touchfeature-service.rc
+vendor/etc/vintf/manifest/vendor.xiaomi.hw.touchfeature-service.xml
+
 # Wi-Fi
 vendor/bin/conninfra_loader
 vendor/bin/hw/tetheroffloadservice
