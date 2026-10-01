@@ -92,6 +92,10 @@ blob_fixups: blob_fixups_user_type = {
     .replace_needed("libutils.so", "libutils-v32.so"),
     "vendor/lib64/libmorpho_video_stabilizer.so": blob_fixup()
     .add_needed("libutils.so"),
+    'vendor/lib64/libcomposer_ext.so': blob_fixup()
+        .sig_replace('C0 7B 00 94 60 00 00 36 24 00 80 52', 'C0 7B 00 94 1F 20 03 D5 24 00 80 52')
+        .sig_replace('DB 58 00 94 20 03 00 36 1F 20 03 D5', 'DB 58 00 94 1F 20 03 D5 1F 20 03 D5')
+        .sig_replace('F7 03 1F 2A 18 07 00 11 99 03 40 B2', 'F7 03 1F 2A 24 00 80 52 99 03 40 B2'),
 
     'vendor/lib64/mt6855/libmtkcam_hal_aidl_common.so': blob_fixup()
         .replace_needed('android.hardware.camera.common-V2-ndk.so', 'android.hardware.camera.common-V1-ndk.so'),
