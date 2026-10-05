@@ -5,56 +5,79 @@
  */
 
 #include <aidl/android/hardware/power/BnPower.h>
-#include <aidl/vendor/xiaomi/hw/touchfeature/ITouchFeature.h>
 #include <android-base/file.h>
 #include <android-base/logging.h>
-#include <android/binder_manager.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
-#include <mutex>
+#include <atomic>
+#include <thread>
+#include <chrono>
 
 namespace aidl::google::hardware::power::impl::pixel {
 
 using ::aidl::android::hardware::power::Mode;
-using ::aidl::vendor::xiaomi::hw::touchfeature::ITouchFeature;
 using ::android::base::WriteStringToFile;
 
 namespace {
 
 constexpr const char* kTpGesturePath = "/proc/tp_gesture";
+
+#define CMD_DATA_BUF_SIZE 256
+#define TOUCH_MAGIC 0x54
+#define COMMON_DATA_CMD 0
+#define SELECT_TOUCH_ID 3
+
+typedef struct {
+    int8_t touch_id;
+    uint8_t cmd;
+    uint16_t mode;
+    uint16_t data_len;
+    uint16_t reserved;
+    int32_t data_buf[CMD_DATA_BUF_SIZE];
+} touch_base;
+
+#define TOUCH_IOC_SELECT_TOUCH_ID _IOW(TOUCH_MAGIC, SELECT_TOUCH_ID, int)
+#define TOUCH_IOC_COMMON_DATA _IOW(TOUCH_MAGIC, COMMON_DATA_CMD, touch_base)
+
 constexpr int32_t kTouchId = 0;
 constexpr int32_t kTouchGameMode = 0;
-constexpr int32_t kTouchActiveMode = 202;
+constexpr int32_t kTouchActiveMode = 1;
 
-std::mutex gServiceMutex;
-std::shared_ptr<ITouchFeature> gTouchFeatureService;
+std::atomic<bool> gGameModeEnabled{false};
 
-std::shared_ptr<ITouchFeature> getTouchFeatureService() {
-    std::lock_guard<std::mutex> lock(gServiceMutex);
-    if (gTouchFeatureService != nullptr) {
-        if (AIBinder_isAlive(gTouchFeatureService->asBinder().get())) {
-            return gTouchFeatureService;
-        }
-        gTouchFeatureService = nullptr;
+bool setTouchMode(int mode, int val) {
+    int fd = open("/dev/xiaomi-touch", O_RDWR);
+    if (fd < 0) {
+        LOG(ERROR) << "Failed to open /dev/xiaomi-touch";
+        return false;
     }
 
-    ndk::SpAIBinder binder(AServiceManager_checkService(
-        "vendor.xiaomi.hw.touchfeature.ITouchFeature/default"));
-    if (!binder.get()) {
-        LOG(ERROR) << "Failed to get touchfeature service";
-        return nullptr;
+    int sel_ret = ioctl(fd, TOUCH_IOC_SELECT_TOUCH_ID, 0);
+    if (sel_ret < 0) {
+        LOG(ERROR) << "TOUCH_IOC_SELECT_TOUCH_ID failed";
+        close(fd);
+        return false;
     }
 
-    gTouchFeatureService = ITouchFeature::fromBinder(binder);
-    if (gTouchFeatureService == nullptr) {
-        LOG(ERROR) << "Failed to convert touchfeature binder to interface";
+    touch_base tb;
+    memset(&tb, 0, sizeof(tb));
+    tb.touch_id = kTouchId;
+    tb.cmd = 0; // SET_CUR_VALUE
+    tb.mode = (uint16_t)mode;
+    tb.data_len = 1;
+    tb.data_buf[0] = val;
+
+    int ret = ioctl(fd, TOUCH_IOC_COMMON_DATA, &tb);
+    if (ret < 0) {
+        LOG(ERROR) << "TOUCH_IOC_COMMON_DATA failed for mode " << mode << " val " << val;
+        close(fd);
+        return false;
     }
 
-    return gTouchFeatureService;
-}
-
-void invalidateTouchFeatureService() {
-    std::lock_guard<std::mutex> lock(gServiceMutex);
-    gTouchFeatureService = nullptr;
+    close(fd);
+    return true;
 }
 
 }  // anonymous namespace
@@ -83,30 +106,31 @@ bool setDeviceSpecificMode(Mode type, bool enabled) {
             return true;
         }
         case Mode::GAME: {
-            auto touchfeature = getTouchFeatureService();
-            if (touchfeature == nullptr) {
+            gGameModeEnabled = enabled;
+            bool gameStatus = setTouchMode(kTouchGameMode, enabled ? 1 : 0);
+            if (!gameStatus) {
+                LOG(ERROR) << "setTouchMode failed for GAME";
                 return false;
             }
 
-            const auto gameStatus = touchfeature->setTouchMode(
-                kTouchId, kTouchGameMode, enabled ? 1 : 0);
-            if (!gameStatus.isOk()) {
-                LOG(ERROR) << "setTouchMode failed for GAME: "
-                           << gameStatus.getDescription();
-                invalidateTouchFeatureService();
-                return false;
-            }
-
-            const auto activeStatus = touchfeature->setTouchMode(
-                kTouchId, kTouchActiveMode, enabled ? 1 : 0);
-            if (!activeStatus.isOk()) {
-                LOG(ERROR) << "setTouchMode failed for ACTIVE: "
-                           << activeStatus.getDescription();
-                invalidateTouchFeatureService();
+            bool activeStatus = setTouchMode(kTouchActiveMode, enabled ? 1 : 0);
+            if (!activeStatus) {
+                LOG(ERROR) << "setTouchMode failed for ACTIVE";
                 return false;
             }
 
             return true;
+        }
+        case Mode::INTERACTIVE: {
+            if (enabled && gGameModeEnabled) {
+                std::thread([]() {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                    setTouchMode(kTouchGameMode, 1);
+                    setTouchMode(kTouchActiveMode, 1);
+                }).detach();
+            }
+            // Return false so Power.cpp continues handling INTERACTIVE
+            return false;
         }
         default:
             return false;
