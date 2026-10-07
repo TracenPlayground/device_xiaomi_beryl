@@ -1,0 +1,10 @@
+diff --git a/private/property_contexts b/private/property_contexts
+index e454381..ea69cdc 100644
+--- a/private/property_contexts
++++ b/private/property_contexts
+@@ -1,4 +1,5 @@
+ # Custom version
++net.pixelos.build_type                   u:object_r:custom_version_prop:s0
+ net.pixelos.version                    u:object_r:custom_version_prop:s0
+ ro.custom.build.date                   u:object_r:custom_version_prop:s0
+ ro.custom.device                       u:object_r:custom_version_prop:s0

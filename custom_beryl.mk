@@ -23,6 +23,19 @@ PRODUCT_MANUFACTURER := Xiaomi
 
 PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
 
+# Updater (unofficial OTA)
+# ota.mk gates Updater behind IS_OFFICIAL, so include it explicitly for beryl.
+PRODUCT_PACKAGES += \
+    Updater
+
+PRODUCT_COPY_FILES += \
+    vendor/custom/config/permissions/privapp-permissions-custom.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-custom.xml
+
+# UpdatesNetworkDataSource fails closed when this is blank (version.mk only sets
+# it for official builds). Keep value short; used only for local DB rows.
+PRODUCT_PRODUCT_PROPERTIES += \
+    net.pixelos.build_type=unofficial
+
 PRODUCT_BUILD_PROP_OVERRIDES += \
     BuildDesc="missi-user 16 BP2A.250605.031.A3 OS3.0.1.0.WOQMIXM release-keys" \
     BuildFingerprint=Redmi/beryl/beryl:16/BP2A.250605.031.A3/OS3.0.1.0.WOQMIXM:user/release-keys

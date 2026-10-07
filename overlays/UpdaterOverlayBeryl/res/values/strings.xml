@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2025 The LineageOS Project
+     SPDX-License-Identifier: Apache-2.0
+
+     Unofficial OTA feed for beryl. Replace the example host with your own
+     HTTPS server hosting the pixelos_feed.py-generated beryl.json.
+     Feed contract: JSON array, exactly one files[0] entry, HTTPS url,
+     no redirects, datetime newer than ro.build.date.utc.
+-->
+<resources>
+    <string name="updater_server_url" translatable="false">https://tracenpg.naokoshoto.my.id/ota/{device}.json</string>
+    <!-- Keep changelog on official feed or point at your own {device}.md -->
+    <string name="changelog_url" translatable="false">https://tracenpg.naokoshoto.my.id/ota/changelogs/{device}.md</string>
+</resources>
