@@ -355,7 +355,7 @@
       "Name": "TopAppCpuset",
       "Path": "/dev/cpuset/top-app/cpus",
       "Values": [
-        "0-3",
+        "0-5",
         "0-7"
       ],
       "ResetOnInit": true
@@ -366,7 +366,7 @@
         "/dev/cpuset/foreground/cpus"
       ],
       "Values": [
-        "0-2",
+        "0-5",
         "0-6"
       ],
       "ResetOnInit": true
@@ -377,7 +377,7 @@
         "/dev/cpuset/foreground_window/cpus"
       ],
       "Values": [
-        "0-2",
+        "0-5",
         "0-6"
       ],
       "ResetOnInit": true
@@ -699,19 +699,19 @@
       "PowerHint": "DISPLAY_INACTIVE",
       "Node": "ForegroundCpuset",
       "Duration": 0,
-      "Value": "0-2"
+      "Value": "0-5"
     },
     {
       "PowerHint": "DISPLAY_INACTIVE",
       "Node": "ForegroundWindowCpuset",
       "Duration": 0,
-      "Value": "0-2"
+      "Value": "0-5"
     },
     {
       "PowerHint": "DISPLAY_INACTIVE",
       "Node": "TopAppCpuset",
       "Duration": 0,
-      "Value": "0-3"
+      "Value": "0-5"
     },
     {
       "PowerHint": "DISPLAY_INACTIVE",
@@ -765,7 +765,7 @@
       "PowerHint": "DISPLAY_IDLE",
       "Node": "ForegroundWindowCpuset",
       "Duration": 0,
-      "Value": "0-2"
+      "Value": "0-5"
     },
     {
       "PowerHint": "DISPLAY_IDLE",
@@ -777,7 +777,7 @@
       "PowerHint": "DISPLAY_IDLE",
       "Node": "TopAppCpuset",
       "Duration": 0,
-      "Value": "0-3"
+      "Value": "0-5"
     },
     {
       "PowerHint": "DISPLAY_IDLE",
