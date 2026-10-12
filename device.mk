@@ -338,6 +338,11 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/public.libraries.txt:$(TARGET_COPY_OUT_VENDOR)/etc/public.libraries.txt
 
+# OpenCL
+PRODUCT_PACKAGES += \
+    libOpenCL-pixel \
+    libpvr_mapper_utils_vendor_symlink
+
 # Init scripts
 PRODUCT_PACKAGES += \
     init.insmod.sh \

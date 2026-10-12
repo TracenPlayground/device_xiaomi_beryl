@@ -7,5 +7,28 @@
 soong_namespace {
     imports: [
         "hardware/xiaomi",
+        "vendor/xiaomi/beryl",
     ],
+}
+
+cc_library_shared {
+    name: "libOpenCL-pixel",
+    owner: "xiaomi",
+    soc_specific: true,
+    compile_multilib: "64",
+    srcs: [
+        "opencl-pixel/opencl_pixel.c",
+    ],
+    shared_libs: [
+        "liblog",
+        "libdl",
+        "libOpenCL",
+    ],
+}
+
+install_symlink {
+    name: "libpvr_mapper_utils_vendor_symlink",
+    soc_specific: true,
+    installed_location: "lib64/libpvr_mapper_utils.so",
+    symlink_target: "/vendor/lib64/hw/mt6855/libpvr_mapper_utils.so",
 }

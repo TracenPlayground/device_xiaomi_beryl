@@ -2451,7 +2451,7 @@ vendor/lib64/egl/mt6855/libEGL_mtk.so;SYMLINK=vendor/lib64/egl/libEGL_mtk.so
 vendor/lib64/egl/mt6855/libGLESv1_CM_mtk.so;SYMLINK=vendor/lib64/egl/libGLESv1_CM_mtk.so
 vendor/lib64/egl/mt6855/libGLESv2_mtk.so;SYMLINK=vendor/lib64/egl/libGLESv2_mtk.so
 vendor/lib64/hw/hwcomposer.mtk_common.so
-vendor/lib64/hw/mt6855/libpvr_mapper_utils.so;SYMLINK=vendor/lib64/hw/libpvr_mapper_utils.so
+vendor/lib64/hw/mt6855/libpvr_mapper_utils.so;SYMLINK=vendor/lib64/hw/libpvr_mapper_utils.so,vendor/lib64/libpvr_mapper_utils.so
 vendor/lib64/hw/mt6855/mapper.powervr.so;SYMLINK=vendor/lib64/hw/mapper.powervr.so
 vendor/lib64/hw/mt6855/vulkan.mtk.so;SYMLINK=vendor/lib64/hw/vulkan.mtk.so
 vendor/lib64/libDefaultFpsActor.so

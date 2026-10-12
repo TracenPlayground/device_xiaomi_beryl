@@ -26,6 +26,8 @@
 /mnt/vendor/persist/goodix(/.*)? u:object_r:fingerprint_vendor_data_file:s0
 
 # Same process hal
+/vendor/lib(64)?/libOpenCL-pixel\.so                                                          u:object_r:same_process_hal_file:s0
+/vendor/lib(64)?/libpvr_mapper_utils\.so                                                      u:object_r:same_process_hal_file:s0
 /vendor/lib(64)?/hw/libpvr_mapper_utils\.so                                                   u:object_r:same_process_hal_file:s0
 /vendor/lib(64)?/hw/mapper\.mediatek\.so                                                      u:object_r:same_process_hal_file:s0
 /vendor/lib(64)?/hw/mapper\.powervr\.so                                                       u:object_r:same_process_hal_file:s0
