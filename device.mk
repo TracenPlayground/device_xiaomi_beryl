@@ -383,7 +383,8 @@ PRODUCT_PACKAGES += \
     TelephonyOverlayBeryl \
     TetheringResOverlayBeryl \
     WifiResOverlayBeryl \
-    NfcOverlayBeryl
+    NfcOverlayBeryl \
+    DeviceAsWebcamOverlayBeryl
 
 PRODUCT_PACKAGES += \
     ApertureOverlay
