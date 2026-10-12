@@ -1,4 +1,11 @@
 libOpenCL.so
+libOpenCL-pixel.so
+libPVROCL.so 64
+libsrv_um.so 64
+libusc.so 64
+libpvr_mapper_utils.so 64
+libPVRMtkutils.so 64
+libgpud.so 64
 libmpbase.so 64
 libmialgoengine.so 64
 libmialgoengine2.so 64
