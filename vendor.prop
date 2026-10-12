@@ -363,3 +363,4 @@ persist.sys.fuse.passthrough.enable=true
 
 # UVC
 ro.usb.uvc.enabled=true
+vendor.usb.uvc.payload_transfer_size=1024
