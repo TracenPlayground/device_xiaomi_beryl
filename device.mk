@@ -122,7 +122,7 @@ PRODUCT_PACKAGES += \
 
 # Dolby
 PRODUCT_PACKAGES += \
-    XiaomiDolby \
+    HalcyonDolby \
     DSPVolumeSynchronizer
 
 PRODUCT_PACKAGES += \
