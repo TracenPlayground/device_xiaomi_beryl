@@ -25,10 +25,3 @@ cc_library_shared {
         "libOpenCL",
     ],
 }
-
-install_symlink {
-    name: "libpvr_mapper_utils_vendor_symlink",
-    soc_specific: true,
-    installed_location: "lib64/libpvr_mapper_utils.so",
-    symlink_target: "/vendor/lib64/hw/mt6855/libpvr_mapper_utils.so",
-}

@@ -340,8 +340,7 @@ PRODUCT_COPY_FILES += \
 
 # OpenCL
 PRODUCT_PACKAGES += \
-    libOpenCL-pixel \
-    libpvr_mapper_utils_vendor_symlink
+    libOpenCL-pixel
 
 # Init scripts
 PRODUCT_PACKAGES += \
