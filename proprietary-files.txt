@@ -2749,7 +2749,6 @@ vendor/lib64/vendor.mediatek.hardware.mtkradioex.mwi-V1-ndk.so
 vendor/lib64/vendor.mediatek.hardware.mtkradioex.network-V1-ndk.so
 vendor/lib64/vendor.mediatek.hardware.mtkradioex.ntn-V1-ndk.so
 vendor/lib64/vendor.mediatek.hardware.netdagent-V1-ndk.so
-vendor/lib64/vendor.mediatek.hardware.netdagent@1.0.so
 vendor/lib64/vendor.mediatek.hardware.mtkradioex.rcs-V2-ndk.so
 vendor/lib64/vendor.mediatek.hardware.mtkradioex.rsu-V1-ndk.so
 vendor/lib64/vendor.mediatek.hardware.mtkradioex.se-V1-ndk.so
