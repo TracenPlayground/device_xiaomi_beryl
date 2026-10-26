@@ -404,6 +404,7 @@ PRODUCT_SOONG_NAMESPACES += \
     hardware/lineage/interfaces/power-libperfmgr \
     hardware/mediatek \
     hardware/mediatek/libmtkperf_client \
+    hardware/mediatek/libion_mtk \
     hardware/xiaomi \
     hardware/google/interfaces \
     hardware/google/pixel/pixelstats \
