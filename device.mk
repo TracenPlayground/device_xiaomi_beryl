@@ -283,7 +283,6 @@ PRODUCT_PACKAGES += \
     android.hardware.usb.gadget-service.mediatek
 
 # Wifi
-$(call soong_config_set,wpa_supplicant_8,board_wlan_mediatek_stability,true)
 PRODUCT_PACKAGES += \
     android.hardware.wifi-service \
     wpa_supplicant \
@@ -404,7 +403,6 @@ PRODUCT_SOONG_NAMESPACES += \
     hardware/lineage/interfaces/power-libperfmgr \
     hardware/mediatek \
     hardware/mediatek/libmtkperf_client \
-    hardware/mediatek/wlan/wifi_hal \
     hardware/xiaomi \
     hardware/google/interfaces \
     hardware/google/pixel/pixelstats \
