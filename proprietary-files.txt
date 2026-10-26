@@ -2467,7 +2467,6 @@ vendor/lib64/libgralloc_metadata.so
 vendor/lib64/libgralloctypes_mtk.so
 vendor/lib64/libion_mtk.so
 vendor/lib64/libion_ulit.so
-vendor/lib64/libladder.so
 vendor/lib64/libmtkgpuserv.so
 vendor/lib64/libmtkgpuservsdk_vendor.so
 vendor/lib64/libpixelflinger.so
