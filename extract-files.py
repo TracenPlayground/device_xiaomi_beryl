@@ -54,10 +54,22 @@ def lib_fixup_vendor_suffix(lib: str, partition: str, *args, **kwargs):
 
 lib_fixups: lib_fixups_user_type = {
     **lib_fixups,
-    ('vendor.mediatek.hardware.videotelephony@1.0',): lib_fixup_vendor_suffix,
+    (
+        'vendor.mediatek.hardware.videotelephony-V1-ndk',
+        'vendor.mediatek.hardware.videotelephony@1.0',
+    ): lib_fixup_vendor_suffix,
 }
 
 blob_fixups: blob_fixups_user_type = {
+    (
+        'vendor/lib64/android.hardware.bluetooth.audio-impl-mediatek.so',
+        'vendor/lib64/hw/audio.primary.mediatek.so',
+        'vendor/lib64/libbluetooth_audio_session_aidl_mtk.so',
+    ): blob_fixup()
+        .replace_needed(
+            'vendor.mediatek.hardware.bluetooth.audio-V1-ndk.so',
+            'vendor.mediatek.hardware.bluetooth.audio-V4-ndk.so',
+        ),
     'vendor/lib64/libmt_mitee.so': blob_fixup()
     .replace_needed('android.hardware.security.keymint-V3-ndk.so', 'android.hardware.security.keymint-V4-ndk.so'),
     ('vendor/lib64/libpqxmlparser.so',
