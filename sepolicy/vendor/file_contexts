@@ -88,6 +88,9 @@
 # Keymint
 /(vendor|system/vendor)/bin/hw/android.hardware.security.keymint@1.0-service.mitee                     u:object_r:hal_keymint_default_exec:s0
 
+# Media
+/vendor/bin/mt6855/v3avpud-64b\.mt6855    u:object_r:vpud_native_exec:s0
+
 # MIEV
 /dev/miev    u:object_r:miev_dev:s0
 
