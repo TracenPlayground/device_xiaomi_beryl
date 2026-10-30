@@ -1,0 +1,10 @@
+#
+# Copyright (C) 2026 The LineageOS Project
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+key 143 WAKEUP
+# Key 354 is intentionally omitted so single-tap does not wake to lockscreen
+# via input pipeline, but routes through sensors.beryl to Ambient Display.
+
