@@ -290,7 +290,7 @@
          if the sensor HAL correctly handles the proximity sensor as a wake-up source.
          Otherwise, the device may fail to wake out of suspend reliably.
          The default is false. -->
-    <bool name="config_suspendWhenScreenOffDueToProximity">true</bool>
+    <bool name="config_suspendWhenScreenOffDueToProximity">false</bool>
 
     <!-- Power Management: Specifies whether to decouple the auto-suspend state of the
          device from the display on/off state.
@@ -525,6 +525,9 @@
     <!-- Whether device supports double tap to wake -->
     <bool name="config_supportDoubleTapWake">true</bool>
 
+    <!-- Skip initial brightness ramp when screen turns on to reduce wake latency -->
+    <bool name="config_skipScreenOnBrightnessRamp">true</bool>
+
     <!-- Flag indicating whether the surface flinger has limited
          alpha compositing functionality in hardware.  If set, the window
          manager will disable alpha trasformation in animations where notAdd commentMore actions
@@ -551,4 +554,7 @@
 
     <!-- Pocket Lock -->
     <bool name="config_pocketModeSupported">false</bool>
+
+    <!-- Doze single tap sensor -->
+    <string name="config_dozeTapSensorType">org.lineageos.sensor.single_tap</string>
 </resources>
