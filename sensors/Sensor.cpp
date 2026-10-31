@@ -278,6 +278,7 @@ SysfsPollingOneShotSensor::~SysfsPollingOneShotSensor() {
 }
 
 void SysfsPollingOneShotSensor::writeEnable(bool enable) {
+    if (mEnablePath.empty()) return;
     std::call_once(mEnableOpenOnce, [&] { mEnableStream.open(mEnablePath); });
 
     if (mEnableStream) {
@@ -377,7 +378,7 @@ bool SysfsPollingOneShotSensor::readFd(const int fd) {
 UdfpsSensor::UdfpsSensor(int32_t sensorHandle, ISensorsEventCallback* callback)
     : SysfsPollingOneShotSensor(
               sensorHandle, callback, "/sys/class/touch/touch_dev/fod_press_status",
-              "/sys/class/touch/touch_dev/fod_longpress_gesture_enabled", "UDFPS Sensor",
+              "", "UDFPS Sensor",
               "org.lineageos.sensor.udfps",
               static_cast<SensorType>(static_cast<int32_t>(SensorType::DEVICE_PRIVATE_BASE) + 3)),
       mScreenX(0),
