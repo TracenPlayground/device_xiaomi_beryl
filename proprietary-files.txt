@@ -2285,6 +2285,7 @@ vendor/etc/camera/xiaomi/uwsuperlowlightshot.json
 vendor/lib64/hw/consumerir.default.so:vendor/lib64/hw/consumerir.mt6855.so;FIX_SONAME
 
 # Display configs
+product/etc/displayconfig/display_id_4627039422300187648.xml
 vendor/etc/cust_color.xml
 vendor/etc/cust_color_dsi_panel_o17_38_0c_0a_fhdp_vdo.xml
 vendor/etc/dsi_panel_o17_38_0c_0a_fhdp_vdo_mi.xml
