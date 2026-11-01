@@ -322,6 +322,11 @@ ro.surface_flinger.wcg_composition_dataspace=143261696
 ro.surface_flinger.set_touch_timer_ms=1100
 ro.surface_flinger.set_idle_timer_ms=1100
 
+# Display & HWC Backlight
+ro.vendor.mtk_backlight_hwc_support=1
+persist.vendor.max.brightness=500
+vendor.display.disable_stc_dimming=1
+
 # MTK Display Idle FPS
 ro.vendor.display.idle_default_fps=60
 ro.vendor.display.idle_default_fps.support=true
