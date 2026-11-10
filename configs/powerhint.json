@@ -200,6 +200,12 @@
       "Path": "/sys/devices/system/cpu/cpufreq/policy6/scaling_max_freq",
       "Values": [
         "9999999",
+        "2500000",
+        "2450000",
+        "2400000",
+        "2350000",
+        "2300000",
+        "2250000",
         "2200000",
         "2150000",
         "2050000",
@@ -227,6 +233,12 @@
       "Path": "/sys/devices/system/cpu/cpufreq/policy6/scaling_min_freq",
       "Values": [
         "9999999",
+        "2500000",
+        "2450000",
+        "2400000",
+        "2350000",
+        "2300000",
+        "2250000",
         "2200000",
         "2150000",
         "2050000",
@@ -247,7 +259,7 @@
         "550000",
         "0"
       ],
-      "DefaultIndex": 19,
+      "DefaultIndex": 25,
       "ResetOnInit": true
     },
     {
@@ -412,13 +424,13 @@
       "PowerHint": "FIXED_PERFORMANCE",
       "Node": "CPUSuperClusterMaxFreq",
       "Duration": 0,
-      "Value": "2150000"
+      "Value": "2500000"
     },
     {
       "PowerHint": "FIXED_PERFORMANCE",
       "Node": "CPUSuperClusterMinFreq",
       "Duration": 0,
-      "Value": "2150000"
+      "Value": "2500000"
     },
     {
       "PowerHint": "FIXED_PERFORMANCE",
@@ -496,7 +508,7 @@
       "PowerHint": "INTERACTION",
       "Node": "CPUSuperClusterMaxFreq",
       "Duration": 1000,
-      "Value": "2200000"
+      "Value": "2500000"
     },
     {
       "PowerHint": "INTERACTION",
@@ -526,7 +538,7 @@
       "PowerHint": "LAUNCH",
       "Node": "CPUSuperClusterMinFreq",
       "Duration": 3000,
-      "Value": "2200000"
+      "Value": "2500000"
     },
     {
       "PowerHint": "LAUNCH",
@@ -663,7 +675,7 @@
       "PowerHint": "FP_BOOST",
       "Node": "CPUSuperClusterMinFreq",
       "Duration": 1500,
-      "Value": "2200000"
+      "Value": "2500000"
     },
     {
       "PowerHint": "FP_BOOST",
