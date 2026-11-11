@@ -601,6 +601,96 @@
       "Value": "100"
     },
     {
+      "PowerHint": "CAMERA_STREAMING_LOW",
+      "Node": "CPUEfficiencyClusterMinFreq",
+      "Duration": 0,
+      "Value": "1000000"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_LOW",
+      "Node": "CPUSuperClusterMinFreq",
+      "Duration": 0,
+      "Value": "1250000"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_LOW",
+      "Node": "CDCpuset",
+      "Duration": 0,
+      "Value": "0-7"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_MID",
+      "Node": "CPUEfficiencyClusterMinFreq",
+      "Duration": 0,
+      "Value": "1400000"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_MID",
+      "Node": "CPUSuperClusterMinFreq",
+      "Duration": 0,
+      "Value": "1650000"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_MID",
+      "Node": "CDCpuset",
+      "Duration": 0,
+      "Value": "0-7"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_MID",
+      "Node": "CAMUClampBoost",
+      "Duration": 0,
+      "Value": "50"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_MID",
+      "Node": "MemFreq",
+      "Duration": 0,
+      "Value": "3200000000"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_MID",
+      "Node": "PMQoSCpuDmaLatency",
+      "Duration": 0,
+      "Value": "51"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_HIGH",
+      "Node": "CPUEfficiencyClusterMinFreq",
+      "Duration": 0,
+      "Value": "1600000"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_HIGH",
+      "Node": "CPUSuperClusterMinFreq",
+      "Duration": 0,
+      "Value": "1850000"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_HIGH",
+      "Node": "CDCpuset",
+      "Duration": 0,
+      "Value": "0-7"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_HIGH",
+      "Node": "CAMUClampBoost",
+      "Duration": 0,
+      "Value": "75"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_HIGH",
+      "Node": "MemFreq",
+      "Duration": 0,
+      "Value": "4266000000"
+    },
+    {
+      "PowerHint": "CAMERA_STREAMING_HIGH",
+      "Node": "PMQoSCpuDmaLatency",
+      "Duration": 0,
+      "Value": "51"
+    },
+    {
       "PowerHint": "EXPENSIVE_RENDERING",
       "Node": "GpuPwrLevel",
       "Duration": 0,

@@ -1678,7 +1678,7 @@
         minBitRate="64000" maxBitRate="50000000"
         minFrameWidth="176" maxFrameWidth="2560"
         minFrameHeight="144" maxFrameHeight="1440"
-        minFrameRate="15" maxFrameRate="30" />
+        minFrameRate="15" maxFrameRate="60" />
     <VideoEncoderCap name="h263" enabled="true"
         minBitRate="64000" maxBitRate="2000000"
         minFrameWidth="176" maxFrameWidth="640"
@@ -1693,7 +1693,7 @@
         minBitRate="64000" maxBitRate="60000000"
         minFrameWidth="176" maxFrameWidth="2560"
         minFrameHeight="144" maxFrameHeight="1440"
-        minFrameRate="15" maxFrameRate="30" />
+        minFrameRate="15" maxFrameRate="60" />
     <AudioEncoderCap name="aac" enabled="true"
         minBitRate="758" maxBitRate="288000"
         minSampleRate="8000" maxSampleRate="48000"

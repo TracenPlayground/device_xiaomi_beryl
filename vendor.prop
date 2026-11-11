@@ -26,7 +26,11 @@ ro.vendor.mtk.bt_sap_enable=true
 vendor.bluetooth.ldac.abr=true
 
 # Camera
-camera.disable_zsl_mode=1
+camera.disable_zsl_mode=0
+vendor.camera.tuning.data.enable=1
+persist.vendor.camera.enable.default.zsl=1
+vendor.debug.camera.zsl.enable=1
+persist.vendor.camera3.pipeline.buf_num.min.high_fps=8
 persist.vendor.camera3.pipeline.bufnum.base.imgo=4
 persist.vendor.camera3.pipeline.bufnum.base.lcso=4
 persist.vendor.camera3.pipeline.bufnum.base.rrzo=4
@@ -51,6 +55,9 @@ vendor.camera.aux.packagelistext=com.longcheertel.cit
 vendor.camera.mdp.cz.enable=1
 vendor.camera.mdp.dre.enable=1
 vendor.mtk.camera.app.fd.video=1
+vendor.debug.camera.fd.disable=1
+vendor.debug.eis.previewoff=1
+vendor.debug.eis.factor=100
 
 # Connsys
 persist.vendor.connsys.chipid=-1
