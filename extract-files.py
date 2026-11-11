@@ -246,6 +246,20 @@ blob_fixups: blob_fixups_user_type = {
         .replace_needed('libsink.so', 'libsink-mtk.so'),
     'system_ext/lib64/libsink-mtk.so': blob_fixup()
         .add_needed('libaudioclient_shim.so'),
+    'vendor/lib64/mt6855/libmtkcam_metastore.so': blob_fixup()
+        .sig_replace('00 08 40 39 c0 03 5f d6', '20 00 80 52 c0 03 5f d6')
+        .sig_replace('00 18 40 39 c0 03 5f d6', '00 00 80 52 c0 03 5f d6')
+        .sig_replace('b5 0a 94 52 e8 07 00 f9 95 3f a0 72', '55 05 8a 52 e8 07 00 f9 d5 1f a0 72'),
+    'vendor/lib64/mt6855/libmtkcam_pipelinepolicy.so': blob_fixup()
+        .sig_replace('9f f1 00 71 61 fd ff 54', '9f f1 00 71 6b fd ff 54')
+        .sig_replace('df f2 00 71 c1 fc ff 54', 'df f2 00 71 cb fc ff 54')
+        .sig_replace('1f 09 00 71 83 36 00 54', '1f 09 00 71 43 05 00 54')
+        .sig_replace('1f 01 09 6a c0 34 00 54', '1f 01 09 6a 80 03 00 54')
+        .sig_replace('20 01 3f d6 8b 01 00 14', '20 01 3f d6 01 00 00 14'),
+    'vendor/lib64/mt6855/libmtkcam_featurepolicy.so': blob_fixup()
+        .sig_replace('e0 c3 03 91 57 3c 00 94 da 03 80 52 3a c3 00 b9', 'e0 c3 03 91 57 3c 00 94 9a 07 80 52 3a c3 00 b9'),
+    'vendor/lib64/mt6855/libcameracustom.camera.isp.so': blob_fixup()
+        .sig_replace('61 7b 00 94 a0 02 00 b4 20 03 80 52', '61 7b 00 94 1f 20 03 d5 20 03 80 52'),
 }  # fmt: skip
 
 module = ExtractUtilsModule(

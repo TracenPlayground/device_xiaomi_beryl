@@ -9,6 +9,7 @@ persist.vendor.camera. u:object_r:vendor_camera_persist_prop:s0
 vendor.camera. u:object_r:vendor_camera_prop:s0
 persist.vendor.debug.isphidl.guard u:object_r:vendor_camera_debug_prop:s0
 vendor.camprovider.enable_hidden   u:object_r:vendor_camera_debug_prop:s0
+vendor.debug.appcontrol.           u:object_r:vendor_camera_debug_prop:s0
 
 # Fingerprint
 persist.vendor.goodix. u:object_r:vendor_fingerprint_prop:s0
