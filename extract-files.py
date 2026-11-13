@@ -246,10 +246,16 @@ blob_fixups: blob_fixups_user_type = {
         .replace_needed('libsink.so', 'libsink-mtk.so'),
     'system_ext/lib64/libsink-mtk.so': blob_fixup()
         .add_needed('libaudioclient_shim.so'),
+    'vendor/lib64/mt6855/libcam.halsensor.so': blob_fixup()
+        .sig_replace('f4 13 00 b9 4d fa 00 94 94 02 80 52 a0 43 01 d1', 'f4 13 00 b9 4d fa 00 94 94 07 80 52 a0 43 01 d1'),
+    'vendor/lib64/mt6855/libmtkcam.logicalmodule.so': blob_fixup()
+        .sig_replace('f4 13 00 b9 65 97 02 94 94 02 80 52 a0 43 01 d1', 'f4 13 00 b9 65 97 02 94 94 07 80 52 a0 43 01 d1'),
     'vendor/lib64/mt6855/libmtkcam_metastore.so': blob_fixup()
         .sig_replace('00 08 40 39 c0 03 5f d6', '20 00 80 52 c0 03 5f d6')
         .sig_replace('00 18 40 39 c0 03 5f d6', '00 00 80 52 c0 03 5f d6')
-        .sig_replace('b5 0a 94 52 e8 07 00 f9 95 3f a0 72', '55 05 8a 52 e8 07 00 f9 d5 1f a0 72'),
+        .sig_replace('b5 0a 94 52 e8 07 00 f9 95 3f a0 72', '55 05 8a 52 e8 07 00 f9 d5 1f a0 72')
+        .sig_replace('18 87 80 52 a0 43 01 d1 e1 43 00 91 f8 13 00 b9 ba a8 01 94 d9 03 80 52', '18 87 80 52 a0 43 01 d1 e1 43 00 91 f8 13 00 b9 ba a8 01 94 99 07 80 52')
+        .sig_replace('18 87 80 52 a0 43 01 d1 e1 43 00 91 f8 13 00 b9 6e 8b 01 94 d9 03 80 52', '18 87 80 52 a0 43 01 d1 e1 43 00 91 f8 13 00 b9 6e 8b 01 94 99 07 80 52'),
     'vendor/lib64/mt6855/libmtkcam_pipelinepolicy.so': blob_fixup()
         .sig_replace('9f f1 00 71 61 fd ff 54', '9f f1 00 71 6b fd ff 54')
         .sig_replace('df f2 00 71 c1 fc ff 54', 'df f2 00 71 cb fc ff 54')
@@ -259,9 +265,10 @@ blob_fixups: blob_fixups_user_type = {
     'vendor/lib64/mt6855/libmtkcam_featurepolicy.so': blob_fixup()
         .sig_replace('e0 c3 03 91 57 3c 00 94 da 03 80 52 3a c3 00 b9', 'e0 c3 03 91 57 3c 00 94 9a 07 80 52 3a c3 00 b9'),
     'vendor/lib64/mt6855/libcameracustom.camera.isp.so': blob_fixup()
-        .sig_replace('61 7b 00 94 a0 02 00 b4 20 03 80 52', '61 7b 00 94 1f 20 03 d5 20 03 80 52'),
+        .sig_replace('61 7b 00 94 a0 02 00 b4 20 03 80 52', '61 7b 00 94 1f 20 03 d5 20 03 80 52')
+        .sig_replace('1f a4 02 71 00 01 9f 1a ff fe ff 17', '1f a4 02 71 60 03 80 52 ff fe ff 17')
+        .sig_replace('fd 7b bd a9 f6 57 01 a9 f4 4f 02 a9 fd 03 00 91 16 01 00 90 d6 56 40 f9 c8 02 40 f9 08 29 40 f9', 'e0 03 1f 2a c0 03 5f d6 1f 20 03 d5 1f 20 03 d5 1f 20 03 d5 1f 20 03 d5 1f 20 03 d5 1f 20 03 d5'),
 }  # fmt: skip
-
 module = ExtractUtilsModule(
     'beryl',
     'xiaomi',
