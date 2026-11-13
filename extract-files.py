@@ -268,7 +268,14 @@ blob_fixups: blob_fixups_user_type = {
         .sig_replace('61 7b 00 94 a0 02 00 b4 20 03 80 52', '61 7b 00 94 1f 20 03 d5 20 03 80 52')
         .sig_replace('1f a4 02 71 00 01 9f 1a ff fe ff 17', '1f a4 02 71 60 03 80 52 ff fe ff 17')
         .sig_replace('fd 7b bd a9 f6 57 01 a9 f4 4f 02 a9 fd 03 00 91 16 01 00 90 d6 56 40 f9 c8 02 40 f9 08 29 40 f9', 'e0 03 1f 2a c0 03 5f d6 1f 20 03 d5 1f 20 03 d5 1f 20 03 d5 1f 20 03 d5 1f 20 03 d5 1f 20 03 d5'),
+    'vendor/lib64/mt6855/libcamera.customae.so': blob_fixup()
+        .sig_replace('40 01 1f d6 66 03 80 52 1f 00 00 14', '40 01 1f d6 66 00 80 52 1f 00 00 14')
+        .sig_replace('08 00 40 b9 1f 61 09 71 a1 fa ff 54 08 04 40 b9 1f 61 09 71 41 fa ff 54 c8 03 80 52 cf ff ff 17', '08 04 40 b9 1f d1 07 71 a3 fa ff 54 c8 03 80 52 28 00 00 b9 e6 ff ff 17 1f 20 03 d5 1f 20 03 d5'),
+    'vendor/lib64/mt6855/libcam.hal3a.v3.ae.so': blob_fixup()
+        .sig_replace('28 03 40 b9 1f 01 1b 6b a3 07 00 54 3b 03 00 b9 3b 00 00 14', '28 03 40 b9 1f 01 1b 6b a3 07 00 54 1f 20 03 d5 3b 00 00 14')
+        .sig_replace('7f 02 08 6b 2b 0a 00 54', '7f 02 08 6b 1f 20 03 d5'),
 }  # fmt: skip
+
 module = ExtractUtilsModule(
     'beryl',
     'xiaomi',
