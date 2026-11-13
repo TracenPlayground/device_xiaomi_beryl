@@ -317,6 +317,17 @@
                    sampleRate="48000"
                    channels="2" />
         </EncoderProfile>
+        <EncoderProfile quality="highspeed1080p" fileFormat="mp4" duration="30">
+            <Video codec="h264"
+                   bitRate="30000000"
+                   width="1920"
+                   height="1080"
+                   frameRate="60" />
+            <Audio codec="aac"
+                   bitRate="256000"
+                   sampleRate="48000"
+                   channels="2" />
+        </EncoderProfile>
         <ImageEncoding quality="95" />
         <ImageEncoding quality="80" />
         <ImageEncoding quality="70" />
