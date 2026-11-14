@@ -122,8 +122,7 @@ PRODUCT_PACKAGES += \
 
 # Dolby
 PRODUCT_PACKAGES += \
-    HalcyonDolby \
-    DSPVolumeSynchronizer
+    HalcyonDolby
 
 PRODUCT_PACKAGES += \
     MtkInCallService \
