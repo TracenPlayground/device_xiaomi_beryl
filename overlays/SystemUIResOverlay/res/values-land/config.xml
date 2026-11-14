@@ -10,4 +10,7 @@
 
     <!-- the padding on the top of the statusbar (usually 0) -->
     <dimen name="status_bar_padding_top">0dp</dimen>
+
+    <!-- The indication margin of keyguard -->
+    <dimen name="keyguard_indication_margin_bottom">8dp</dimen>
 </resources>
