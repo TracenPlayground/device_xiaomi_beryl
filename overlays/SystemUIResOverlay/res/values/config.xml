@@ -27,7 +27,7 @@
     <dimen name="status_bar_padding_top">0dp</dimen>
 
     <!-- The indication margin of keyguard -->
-    <dimen name="keyguard_indication_margin_bottom">125.0dip</dimen>
+    <dimen name="keyguard_indication_margin_bottom">32dp</dimen>
 
     <!-- Height of the status bar header bar when on Keyguard -->
     <dimen name="status_bar_header_height_keyguard">@*android:dimen/status_bar_height_portrait</dimen>
