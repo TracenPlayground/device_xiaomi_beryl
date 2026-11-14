@@ -2,6 +2,9 @@
 ro.vendor.mtk_aal_support=1
 
 # Audio
+ro.config.media_vol_default=10
+ro.config.vc_call_vol_default=7
+ro.config.vc_call_vol_steps=11
 aaudio.mmap_exclusive_policy=2
 aaudio.mmap_policy=2
 persist.audio.button_jack.profile=volume
