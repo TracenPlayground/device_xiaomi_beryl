@@ -396,6 +396,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     ApertureOverlay
 
+# PowerOffAlarm
+PRODUCT_PACKAGES += \
+    PowerOffAlarm \
+    PowerOffAlarmOverlay
+
 # Touch
 # Ship FocalTech FT3519T firmware directly into the recovery ramdisk so
 # fts_touch_i2c can call request_firmware() without /vendor being mounted.
