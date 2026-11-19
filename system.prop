@@ -37,6 +37,7 @@ sys.ipo.pwrdncap=2
 sys.ipo.disable=1
 
 # Audio
+af.resampler.quality=7
 ro.audio.flinger_standbytime_ms=1000
 ro.audio.ihaladaptervendorextension_enabled=true
 ro.audio.silent=0
