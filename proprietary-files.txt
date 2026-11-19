@@ -86,7 +86,6 @@ vendor/etc/audio_param/PlaybackHCF_AudioParam.xml
 vendor/etc/audio_param/PlaybackHCF_ParamUnitDesc.xml
 vendor/etc/audio_param/PlaybackVolAna_AudioParam.xml
 vendor/etc/audio_param/PlaybackVolAna_ParamUnitDesc.xml
-vendor/etc/audio_param/PlaybackVolDigi_AudioParam.xml
 vendor/etc/audio_param/PlaybackVolDigi_ParamUnitDesc.xml
 vendor/etc/audio_param/PlaybackVolUI_AudioParam.xml
 vendor/etc/audio_param/PlaybackVolUI_ParamUnitDesc.xml
