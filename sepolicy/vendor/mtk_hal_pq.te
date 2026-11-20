@@ -1,1 +1,3 @@
 r_dir_file(mtk_hal_pq, vendor_displayfeature_sysfs)
+
+hal_client_domain(mtk_hal_pq, hal_mtk_composer_ext)
