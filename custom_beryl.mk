@@ -8,9 +8,10 @@
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 
-# Inherit some common Lineage stuff.
+# Inherit common PixelOS configuration.
+TARGET_SCREEN_WIDTH := 1080
+SPOOF_FIRST_API_LEVEL_32 := true
 $(call inherit-product, vendor/custom/config/common_full_phone.mk)
-
 
 # Inherit from beryl device
 $(call inherit-product, device/xiaomi/beryl/device.mk)
@@ -22,6 +23,12 @@ PRODUCT_MODEL := Redmi Note 14 5G
 PRODUCT_MANUFACTURER := Xiaomi
 
 PRODUCT_GMS_CLIENTID_BASE := android-xiaomi
+
+PRODUCT_BRAND_FOR_ATTESTATION := $(PRODUCT_BRAND)
+PRODUCT_DEVICE_FOR_ATTESTATION := $(PRODUCT_DEVICE)
+PRODUCT_MODEL_FOR_ATTESTATION := $(PRODUCT_MODEL)
+PRODUCT_NAME_FOR_ATTESTATION := beryl_eea
+PRODUCT_MANUFACTURER_FOR_ATTESTATION := $(PRODUCT_MANUFACTURER)
 
 # Updater (unofficial OTA)
 # ota.mk gates Updater behind IS_OFFICIAL, so include it explicitly for beryl.

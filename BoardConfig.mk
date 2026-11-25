@@ -4,8 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-SPOOF_FIRST_API_LEVEL_32 := true
-
 DEVICE_PATH := device/xiaomi/beryl
 KERNEL_PATH := device/xiaomi/beryl-kernel
 
