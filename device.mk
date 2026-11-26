@@ -392,7 +392,8 @@ PRODUCT_PACKAGES += \
     WifiResOverlayBeryl \
     NfcOverlayBeryl \
     DeviceAsWebcamOverlayBeryl \
-    UpdaterOverlayBeryl
+    UpdaterOverlayBeryl \
+    DolbyOverlayBeryl
 
 PRODUCT_PACKAGES += \
     ApertureOverlay

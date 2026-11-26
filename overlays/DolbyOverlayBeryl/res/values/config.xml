@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2026 The LineageOS Project
+
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- Keep AudioEffect.setEnabled(false) disabled on beryl libswdapaidl.so
+         to avoid -61 (-ENODATA) / DEAD_OBJECT FMQ drain failure. -->
+    <bool name="config_dolby_disable_audio_effect">false</bool>
+
+    <!-- beryl dax-default.xml sets ieq-enable=false with include ieq_preset=2
+         on Dynamic (0) and Movie (1); toggle through 0 so IEQ turns on. -->
+    <bool name="config_dolby_force_ieq_reapply">true</bool>
+
+    <!-- Per-profile defaults matching configs/audio/dolby/dax-default.xml:
+         profileId:ieq,dialogue,bass,stereo,volume,hpVirt,spkVirt -->
+    <string-array name="config_dolby_profile_defaults" translatable="false">
+        <item>0:0,3,false,24,true,false,false</item>
+        <item>1:0,7,false,24,true,false,true</item>
+        <item>2:2,0,false,4,true,false,false</item>
+        <item>8:1,9,false,4,true,false,false</item>
+    </string-array>
+</resources>
