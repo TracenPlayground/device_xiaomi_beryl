@@ -29,8 +29,8 @@ PRODUCT_NAME_FOR_ATTESTATION := beryl_eea
 PRODUCT_MANUFACTURER_FOR_ATTESTATION := $(PRODUCT_MANUFACTURER)
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
-    BuildDesc="missi-user 16 BP2A.250605.031.A3 OS3.0.1.0.WOQMIXM release-keys" \
-    BuildFingerprint=Redmi/beryl/beryl:16/BP2A.250605.031.A3/OS3.0.1.0.WOQMIXM:user/release-keys
+    BuildDesc="missi-user 16 BP2A.250605.031.A3 OS3.0.301.0.WOQMIXM release-keys" \
+    BuildFingerprint=Redmi/beryl/beryl:16/BP2A.250605.031.A3/OS3.0.301.0.WOQMIXM:user/release-keys
     DeviceName=$(PRODUCT_SYSTEM_DEVICE) \
     DeviceProduct=$(PRODUCT_SYSTEM_NAME) \
     SystemDevice=$(PRODUCT_SYSTEM_DEVICE) \
